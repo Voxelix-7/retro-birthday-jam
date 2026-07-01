@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="theme-color" content="#2d1a2e" />
+    <title>For WanWan — Happy Birthday</title>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+    />
+    <link rel="stylesheet" href="/app.css" />
+  </head>
+  <body>
+    <div id="app">
+      <!-- PASSWORD -->
+      <section class="screen active" data-screen="password">
+        <div class="panel">
+          <h1 class="title">Enter password</h1>
+          <form id="password-form" autocomplete="off">
+            <input
+              id="password-input"
+              type="password"
+              inputmode="text"
+              spellcheck="false"
+              autocomplete="off"
+              aria-label="Password"
+            />
+            <button type="submit" class="btn">Enter</button>
+          </form>
+          <p class="hint" id="password-hint">&nbsp;</p>
+        </div>
+      </section>
+
+      <!-- BAT -->
+      <section class="screen" data-screen="bat">
+        <div class="bat-stage">
+          <div id="bat-sprite" class="bat-sprite" role="button" tabindex="0" aria-label="Click the bat"></div>
+          <div id="bat-message" class="bat-message hidden">
+            <p id="bat-text"></p>
+            <button id="get-started" class="btn hidden">Get started</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- GAME -->
+      <section class="screen" data-screen="game">
+        <div class="game-wrap">
+          <div class="hud">
+            <span class="hud-label">Marwan</span>
+            <div class="hud-bar"><div id="hud-progress"></div></div>
+            <span class="hud-label">Cake</span>
+          </div>
+          <canvas id="game" width="960" height="360"></canvas>
+          <div class="touch">
+            <button class="tbtn" data-key="left" aria-label="Left">◀</button>
+            <button class="tbtn" data-key="right" aria-label="Right">▶</button>
+            <button class="tbtn" data-key="jump" aria-label="Jump">▲</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- GAME OVER -->
+      <section class="screen" data-screen="gameover">
+        <div class="panel">
+          <div id="blink-sprite" class="blink-sprite"></div>
+          <h2 class="title">Try again?</h2>
+          <div class="row">
+            <button id="retry" class="btn">Try again</button>
+            <button id="giveup" class="btn ghost">Give up</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- FINALE -->
+      <section class="screen" data-screen="finale">
+        <canvas id="confetti" class="confetti"></canvas>
+        <div class="panel finale-panel">
+          <div class="finale-scene">
+            <div class="sprite boy-idle-sprite"></div>
+            <div class="sprite cake-sprite"></div>
+            <div class="sprite cat-blink-sprite" id="finale-cat"></div>
+          </div>
+          <p id="finale-text" class="finale-text"></p>
+        </div>
+      </section>
+    </div>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
