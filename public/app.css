@@ -1,0 +1,301 @@
+:root {
+  --panel: #2d1a2e;
+  --text: #f0e6f0;
+  --accent: #e94f8a;
+  --accent-2: #7a3f8a;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: #000;
+  color: var(--text);
+  font-family: "Press Start 2P", monospace;
+  overflow: hidden;
+  -webkit-font-smoothing: none;
+  image-rendering: pixelated;
+}
+
+#app {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  transition: opacity 400ms ease;
+  background: var(--panel);
+}
+
+.screen[data-screen="game"] { background: #000; }
+
+.screen.active {
+  display: flex;
+  opacity: 1;
+}
+
+.panel {
+  background: var(--panel);
+  color: var(--text);
+  padding: 28px 24px;
+  border: 4px solid var(--text);
+  box-shadow: 0 0 0 4px var(--panel), 8px 8px 0 8px rgba(0,0,0,0.4);
+  max-width: 560px;
+  width: 100%;
+  text-align: center;
+  animation: pop 400ms ease;
+}
+
+@keyframes pop {
+  from { transform: scale(0.9); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.title {
+  font-size: 18px;
+  margin: 0 0 22px;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+#password-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+}
+
+#password-input {
+  width: 100%;
+  max-width: 320px;
+  padding: 14px;
+  background: #1a0d1c;
+  color: var(--text);
+  border: 3px solid var(--text);
+  font-family: inherit;
+  font-size: 16px;
+  letter-spacing: 4px;
+  text-align: center;
+  outline: none;
+}
+
+#password-input:focus { border-color: var(--accent); }
+
+.btn {
+  font-family: inherit;
+  font-size: 12px;
+  padding: 12px 18px;
+  background: var(--accent);
+  color: var(--text);
+  border: 3px solid var(--text);
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: transform 100ms ease;
+}
+
+.btn:hover { transform: translate(-2px,-2px); }
+.btn:active { transform: translate(1px,1px); }
+.btn.ghost { background: transparent; }
+
+.hint { min-height: 16px; font-size: 10px; margin: 12px 0 0; color: var(--accent); }
+.hidden { display: none !important; }
+
+/* BAT */
+.bat-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+.bat-sprite {
+  width: 288px;
+  height: 192px;
+  background-image: url("/sprites/bat.png");
+  background-repeat: no-repeat;
+  background-size: 576px 192px; /* 2 frames * 288 */
+  background-position: 0 0;
+  cursor: pointer;
+  image-rendering: pixelated;
+  opacity: 0;
+  transform: scale(0.4);
+  transition: opacity 700ms ease, transform 700ms cubic-bezier(.2,.9,.3,1.2);
+  animation: batBob 2400ms ease-in-out infinite;
+}
+
+.bat-sprite.in { opacity: 1; transform: scale(1); }
+
+@keyframes batBob {
+  0%,100% { translate: 0 0; }
+  50%     { translate: 0 -8px; }
+}
+
+.bat-message {
+  background: #1a0d1c;
+  border: 3px solid var(--text);
+  color: var(--text);
+  padding: 18px 18px 20px;
+  max-width: 560px;
+  font-size: 11px;
+  line-height: 1.7;
+  animation: pop 400ms ease;
+}
+
+.bat-message p { margin: 0 0 16px; }
+#get-started { margin-top: 4px; }
+
+/* GAME */
+.game-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 960px;
+}
+
+.hud {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  font-size: 8px;
+}
+
+.hud-label { flex: 0 0 auto; }
+
+.hud-bar {
+  flex: 1;
+  height: 12px;
+  background: #1a0d1c;
+  border: 2px solid var(--text);
+  position: relative;
+  overflow: hidden;
+}
+
+#hud-progress {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  transition: width 120ms linear;
+}
+
+#game {
+  display: block;
+  background: #000;
+  width: 100%;
+  height: auto;
+  max-height: 60vh;
+  border: 3px solid var(--text);
+  image-rendering: pixelated;
+}
+
+.touch {
+  display: none;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.tbtn {
+  width: 64px; height: 64px;
+  font-family: inherit;
+  font-size: 20px;
+  background: var(--panel);
+  color: var(--text);
+  border: 3px solid var(--text);
+  user-select: none;
+  touch-action: manipulation;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .touch { display: flex; }
+}
+
+/* Game over blink */
+.blink-sprite {
+  width: 128px; height: 128px;
+  margin: 0 auto 12px;
+  background-image: url("/sprites/cat_blink.png");
+  background-repeat: no-repeat;
+  background-size: 256px 128px;
+  background-position: 0 0;
+  image-rendering: pixelated;
+}
+
+.row { display: flex; gap: 12px; justify-content: center; margin-top: 6px; flex-wrap: wrap; }
+
+/* FINALE */
+.confetti { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+.finale-panel { max-width: 720px; }
+
+.finale-scene {
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.sprite { image-rendering: pixelated; }
+
+.boy-idle-sprite {
+  width: 128px; height: 128px;
+  background: url("/sprites/boy_idle.png") no-repeat;
+  background-size: 128px 128px;
+}
+
+.cake-sprite {
+  width: 160px; height: 60px;
+  background: url("/sprites/cake.png") no-repeat;
+  background-size: 160px 60px;
+  transform: scale(1.4);
+  transform-origin: bottom center;
+  animation: bob 2s ease-in-out infinite;
+}
+
+.cat-blink-sprite {
+  width: 128px; height: 128px;
+  background: url("/sprites/cat_blink.png") no-repeat;
+  background-size: 256px 128px;
+  background-position: 0 0;
+}
+
+@keyframes bob {
+  0%,100% { transform: scale(1.4) translateY(0); }
+  50%     { transform: scale(1.4) translateY(-6px); }
+}
+
+.finale-text {
+  font-size: 11px;
+  line-height: 1.9;
+  color: var(--text);
+  margin: 0;
+  min-height: 120px;
+  text-align: left;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 640px) {
+  .title { font-size: 14px; }
+  .bat-sprite { width: 192px; height: 128px; background-size: 384px 128px; }
+  .finale-scene { gap: 8px; }
+  .boy-idle-sprite, .cat-blink-sprite { width: 80px; height: 80px; background-size: 160px 80px; }
+  .cake-sprite { width: 120px; height: 45px; background-size: 120px 45px; }
+}
