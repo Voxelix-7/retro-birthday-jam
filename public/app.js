@@ -135,11 +135,6 @@ document.getElementById("retry").addEventListener("click", () => {
   show("game");
   runGame();
 });
-document.getElementById("giveup").addEventListener("click", () => {
-  stopBlinkPattern();
-  show("bat");
-  playBatIntro();
-});
 
 // -------- Cat blink pattern (2 blinks @ 3fps, pause 2s, repeat) --------
 const blinkEl = document.getElementById("blink-sprite");
