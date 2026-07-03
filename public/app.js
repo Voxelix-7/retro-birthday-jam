@@ -114,10 +114,11 @@ function typeText(el, text, speed, cb) {
 }
 
 // -------- Game --------
-function runGame() {
+function runGame(opts = {}) {
   startGame({
     canvas: document.getElementById("game"),
     progressEl: document.getElementById("hud-progress"),
+    startPaused: !!opts.startPaused,
     onLose: () => {
       show("gameover");
       startBlinkPattern();
