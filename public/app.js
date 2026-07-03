@@ -75,8 +75,30 @@ batSprite.addEventListener("keydown", (e) => {
 });
 
 getStarted.addEventListener("click", () => {
+  show("intro");
+  initIntro();
+});
+
+// -------- Intro slides --------
+let currentSlide = 0;
+function initIntro() {
+  currentSlide = 0;
+  updateSlides();
+}
+function updateSlides() {
+  document.querySelectorAll(".slide").forEach((s) => {
+    s.classList.toggle("active", Number(s.dataset.slide) === currentSlide);
+  });
+}
+document.querySelectorAll(".slide-next").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    currentSlide = Math.min(currentSlide + 1, 3);
+    updateSlides();
+  });
+});
+document.getElementById("intro-start").addEventListener("click", () => {
   show("game");
-  runGame();
+  runGame({ startPaused: true });
 });
 
 // -------- Typewriter --------
