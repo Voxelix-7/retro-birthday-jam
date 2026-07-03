@@ -5,8 +5,8 @@ const CONFIG = {
   gravity: 0.6,
   jump: -11,
   playerSpeed: 3.4,
-  catBaseSpeed: 2.6,
-  catGain: 0.00015, // px/frame^2, ramps up over time
+  catBaseSpeed: 1.8,
+  catGain: 0.00005, // px/frame^2, ramps up over time
   levelLength: 5400,
   groundY: 300,
   frameMs: 125,
@@ -22,7 +22,7 @@ function loadImg(src) {
 
 let running = false;
 
-export async function startGame({ canvas, progressEl, onLose, onWin }) {
+export async function startGame({ canvas, progressEl, onLose, onWin, startPaused }) {
   const ctx = canvas.getContext("2d");
   ctx.imageSmoothingEnabled = false;
 
@@ -53,7 +53,7 @@ export async function startGame({ canvas, progressEl, onLose, onWin }) {
   const enemies = [];
   const enemyXs = [700, 1150, 1600, 2100, 2650, 3200, 3800, 4400, 5000];
   enemyXs.forEach((x) => enemies.push({
-    x, baseY: CONFIG.groundY - 24, y: CONFIG.groundY - 24, w: 28, h: 24, phase: Math.random() * Math.PI * 2, amp: 40 + Math.random() * 30,
+    x, baseY: CONFIG.groundY - 24, y: CONFIG.groundY - 24, w: 28, h: 24, phase: Math.random() * Math.PI * 2, amp: 10 + Math.random() * 6,
   }));
 
   // Stars parallax
@@ -74,18 +74,25 @@ export async function startGame({ canvas, progressEl, onLose, onWin }) {
   let catSpeed = CONFIG.catBaseSpeed;
   let done = false;
   running = true;
+  let paused = !!startPaused;
 
   let last = performance.now();
   function loop(now) {
     if (!running) return;
     const dt = Math.min(40, now - last);
     last = now;
-    elapsed += dt;
 
     // input
     let dx = 0;
     if (keys.left) dx -= 1;
     if (keys.right) dx += 1;
+    if (paused && (dx !== 0 || keys.jump)) paused = false;
+    if (paused) {
+      draw();
+      requestAnimationFrame(loop);
+      return;
+    }
+    elapsed += dt;
     player.moving = dx !== 0;
     if (dx) player.facing = dx;
     player.x += dx * CONFIG.playerSpeed;
@@ -112,7 +119,7 @@ export async function startGame({ canvas, progressEl, onLose, onWin }) {
 
     // enemies bounce
     enemies.forEach((e) => {
-      e.phase += 0.06;
+      e.phase += 0.03;
       e.y = e.baseY - Math.abs(Math.sin(e.phase)) * e.amp;
     });
 
@@ -139,7 +146,13 @@ export async function startGame({ canvas, progressEl, onLose, onWin }) {
       if (player.x + player.w > cakeX) return finish(true);
     }
 
-    // draw
+    draw();
+
+    frame++;
+    requestAnimationFrame(loop);
+  }
+
+  function draw() {
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, CONFIG.width, CONFIG.height);
 
@@ -187,9 +200,6 @@ export async function startGame({ canvas, progressEl, onLose, onWin }) {
     // progress
     const prog = Math.min(100, (player.x / cakeX) * 100);
     progressEl.style.width = prog + "%";
-
-    frame++;
-    requestAnimationFrame(loop);
   }
 
   function finish(won) {

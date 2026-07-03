@@ -240,6 +240,81 @@ html, body {
 
 .row { display: flex; gap: 12px; justify-content: center; margin-top: 6px; flex-wrap: wrap; }
 
+/* Orange intro / game-over panels */
+.orange-panel {
+  background: #7a3a1a;
+  color: #000;
+  border: 5px solid #fff;
+  border-radius: 18px;
+  padding: 28px 26px;
+  max-width: 720px;
+  width: 100%;
+  box-shadow: 8px 8px 0 rgba(0,0,0,0.4);
+  animation: pop 400ms ease;
+}
+
+.intro-panel { min-height: 360px; display: flex; flex-direction: column; }
+
+.slide { display: none; flex: 1; flex-direction: column; justify-content: space-between; gap: 20px; }
+.slide.active { display: flex; }
+
+.slide-split {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex: 1;
+}
+.slide-split .slide-text { flex: 1; text-align: left; }
+
+.slide-text {
+  color: #000;
+  font-size: 13px;
+  line-height: 1.9;
+  margin: 0;
+}
+.slide-text.center { text-align: center; margin: auto 0; }
+
+.slide-nav { display: flex; justify-content: flex-end; }
+
+.slide-char {
+  width: 256px;
+  height: 256px;
+  image-rendering: pixelated;
+  background-repeat: no-repeat;
+  flex-shrink: 0;
+}
+.char-aya {
+  background-image: url("/sprites/cat_blink.png");
+  background-size: 512px 256px;
+  background-position: 0 0;
+}
+.char-marwan {
+  background-image: url("/sprites/boy_idle.png");
+  background-size: 256px 256px;
+}
+
+.orange-btn {
+  background: #f0e6f0;
+  color: #000;
+  border: 3px solid #fff;
+  border-radius: 10px;
+}
+
+/* Game over panel tweaks */
+.gameover-panel {
+  max-width: 480px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+.gameover-panel .blink-sprite {
+  width: 192px; height: 192px;
+  background-size: 384px 192px;
+  margin: 0;
+}
+
 /* FINALE */
 .confetti { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 
@@ -298,4 +373,10 @@ html, body {
   .finale-scene { gap: 8px; }
   .boy-idle-sprite, .cat-blink-sprite { width: 80px; height: 80px; background-size: 160px 80px; }
   .cake-sprite { width: 120px; height: 45px; background-size: 120px 45px; }
+  .slide-split { flex-direction: column; gap: 12px; }
+  .slide-char { width: 160px; height: 160px; }
+  .char-aya { background-size: 320px 160px; }
+  .char-marwan { background-size: 160px 160px; }
+  .slide-text { font-size: 11px; }
+  .gameover-panel .blink-sprite { width: 140px; height: 140px; background-size: 280px 140px; }
 }

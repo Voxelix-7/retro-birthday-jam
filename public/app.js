@@ -75,8 +75,30 @@ batSprite.addEventListener("keydown", (e) => {
 });
 
 getStarted.addEventListener("click", () => {
+  show("intro");
+  initIntro();
+});
+
+// -------- Intro slides --------
+let currentSlide = 0;
+function initIntro() {
+  currentSlide = 0;
+  updateSlides();
+}
+function updateSlides() {
+  document.querySelectorAll(".slide").forEach((s) => {
+    s.classList.toggle("active", Number(s.dataset.slide) === currentSlide);
+  });
+}
+document.querySelectorAll(".slide-next").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    currentSlide = Math.min(currentSlide + 1, 3);
+    updateSlides();
+  });
+});
+document.getElementById("intro-start").addEventListener("click", () => {
   show("game");
-  runGame();
+  runGame({ startPaused: true });
 });
 
 // -------- Typewriter --------
@@ -92,10 +114,11 @@ function typeText(el, text, speed, cb) {
 }
 
 // -------- Game --------
-function runGame() {
+function runGame(opts = {}) {
   startGame({
     canvas: document.getElementById("game"),
     progressEl: document.getElementById("hud-progress"),
+    startPaused: !!opts.startPaused,
     onLose: () => {
       show("gameover");
       startBlinkPattern();
@@ -111,11 +134,6 @@ document.getElementById("retry").addEventListener("click", () => {
   stopBlinkPattern();
   show("game");
   runGame();
-});
-document.getElementById("giveup").addEventListener("click", () => {
-  stopBlinkPattern();
-  show("bat");
-  playBatIntro();
 });
 
 // -------- Cat blink pattern (2 blinks @ 3fps, pause 2s, repeat) --------
