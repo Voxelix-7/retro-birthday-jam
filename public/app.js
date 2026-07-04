@@ -232,12 +232,5 @@ document.querySelectorAll(".tbtn").forEach((b) => {
   b.addEventListener("mouseleave", up);
 });
 
-// -------- Service worker --------
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch(() => {});
-  });
-}
-
 // Focus input on load
 input.focus();
