@@ -1,35 +1,25 @@
-const CACHE = "wanwan-v1";
-const ASSETS = [
-  "/app.html",
-  "/app.css",
-  "/app.js",
-  "/game.js",
-  "/manifest.webmanifest",
-  "/sprites/boy_run.png",
-  "/sprites/boy_idle.png",
-  "/sprites/cat_run.png",
-  "/sprites/cat_blink.png",
-  "/sprites/bat.png",
-  "/sprites/cake.png",
-  "/icons/icon-192.png",
-  "/icons/icon-512.png",
-];
-self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
-});
-self.addEventListener("activate", (e) => {
-  e.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim())
-  );
-});
-self.addEventListener("fetch", (e) => {
-  const req = e.request;
-  if (req.method !== "GET") return;
-  e.respondWith(
-    caches.match(req).then((hit) => hit || fetch(req).then((res) => {
-      const copy = res.clone();
-      caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
-      return res;
-    }).catch(() => hit))
-  );
-});
+// Kill-switch: evict the old app-shell service worker for returning visitors.
+function isWorkboxCacheForThisRegistration(name) {
+  const hasWorkboxBucket = /(^|-)precache-v\d+-|(^|-)runtime-|(^|-)googleAnalytics-/.test(name);
+  return hasWorkboxBucket && name.endsWith(self.registration.scope);
+}
+
+self.addEventListener("install", () => self.skipWaiting());
+
+self.addEventListener("activate", (event) =>
+  event.waitUntil(
+    (async () => {
+      try {
+        const cacheNames = await caches.keys();
+        // This app's previous SW used a custom cache name ("wanwan-v1"), not Workbox buckets.
+        // Delete every cache on this origin that this SW created.
+        await Promise.allSettled(cacheNames.map((name) => caches.delete(name)));
+        await self.clients.claim();
+        const windowClients = await self.clients.matchAll({ type: "window" });
+        await Promise.allSettled(windowClients.map((client) => client.navigate(client.url)));
+      } finally {
+        await self.registration.unregister();
+      }
+    })(),
+  ),
+);
