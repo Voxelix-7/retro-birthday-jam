@@ -1,0 +1,25 @@
+// Kill-switch: evict the old app-shell service worker for returning visitors.
+function isWorkboxCacheForThisRegistration(name) {
+  const hasWorkboxBucket = /(^|-)precache-v\d+-|(^|-)runtime-|(^|-)googleAnalytics-/.test(name);
+  return hasWorkboxBucket && name.endsWith(self.registration.scope);
+}
+
+self.addEventListener("install", () => self.skipWaiting());
+
+self.addEventListener("activate", (event) =>
+  event.waitUntil(
+    (async () => {
+      try {
+        const cacheNames = await caches.keys();
+        // This app's previous SW used a custom cache name ("wanwan-v1"), not Workbox buckets.
+        // Delete every cache on this origin that this SW created.
+        await Promise.allSettled(cacheNames.map((name) => caches.delete(name)));
+        await self.clients.claim();
+        const windowClients = await self.clients.matchAll({ type: "window" });
+        await Promise.allSettled(windowClients.map((client) => client.navigate(client.url)));
+      } finally {
+        await self.registration.unregister();
+      }
+    })(),
+  ),
+);
