@@ -1,18 +1,17 @@
-## Problem
+## Replace sprite assets
 
-The intro slides, easier gameplay, and redesigned game-over window are already written into `public/app.html`, `public/app.css`, `public/app.js`, and `public/game.js`. The preview still shows the old version because the PWA service worker (`public/sw.js`) cached the previous asset bundle on your first visit and is serving those stale files instead of the updated ones.
+Overwrite the existing sprite PNGs in `public/sprites/` with the newly uploaded spritesheets:
 
-## Fix
+1. `public/sprites/bat.png` ← `user-uploads://pixil-frame-0_13.png` (bat spritesheet)
+2. `public/sprites/cat_run.png` ← `user-uploads://pixil-frame-0_8-2.png` (female/Aya idle — note: currently this file drives the chasing cat character; will replace it here)
+3. `public/sprites/boy_idle.png` ← `user-uploads://pixil-frame-0_14.png` (Marwan idle)
+4. `public/sprites/boy_run.png` ← `user-uploads://pixil-frame-0_11.png` (Marwan running spritesheet)
 
-Bump the service worker cache version so browsers evict the old cache and fetch the new HTML/CSS/JS.
+Also bump the service worker cache version in `public/sw.js` so browsers pick up the new images instead of serving cached copies.
 
-1. In `public/sw.js`, increment the cache name constant (e.g. `birthday-v1` → `birthday-v2`) and make the `activate` handler delete any cache whose name doesn't match the current one.
-2. That's the only code change needed — the app source itself is already up to date.
+No code/logic changes — same filenames, same frame layouts assumed.
 
-## After the change
-
-On your side, do one of these once so the new service worker takes over:
-- Hard-refresh the preview (Cmd/Ctrl+Shift+R), or
-- Open DevTools → Application → Service Workers → Unregister, then reload.
-
-From then on the version bump alone will invalidate the cache automatically.
+### Question
+For #2 (female idle), the current "Aya" character in the codebase is `cat_run.png` (a 3-frame running spritesheet used for the chaser). Your upload looks like a single idle frame. Should I:
+- (a) Just overwrite `cat_run.png` with the new image (the chase animation will become a static idle), or
+- (b) Only use it as the idle preview on the intro slide and keep the existing running spritesheet for gameplay?
