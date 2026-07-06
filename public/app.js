@@ -142,22 +142,25 @@ let blinkTimer = null;
 function startBlinkPattern() {
   stopBlinkPattern();
   const F0 = "0 0";
-  const F1 = "-128px 0";
+  // gameover .blink-sprite renders the sheet at 384x192 (2 frames of 192w),
+  // finale .cat-blink-sprite renders it at 256x128 (2 frames of 128w).
+  const F1_GAMEOVER = "-192px 0";
+  const F1_FINALE = "-128px 0";
   const FRAME_MS = 333; // 3 fps
   const PAUSE_MS = 2000;
   // Sequence: F0->F1->F0->F1->F0 (2 blinks) then hold F0 for 2s
   const seq = [
-    { p: F1, wait: FRAME_MS },
-    { p: F0, wait: FRAME_MS },
-    { p: F1, wait: FRAME_MS },
-    { p: F0, wait: FRAME_MS },
-    { p: F0, wait: PAUSE_MS },
+    { open: true,  wait: FRAME_MS },
+    { open: false, wait: FRAME_MS },
+    { open: true,  wait: FRAME_MS },
+    { open: false, wait: FRAME_MS },
+    { open: false, wait: PAUSE_MS },
   ];
   let i = 0;
   const step = () => {
     const s = seq[i % seq.length];
-    blinkEl.style.backgroundPosition = s.p;
-    if (finaleCat) finaleCat.style.backgroundPosition = s.p;
+    blinkEl.style.backgroundPosition = s.open ? F1_GAMEOVER : F0;
+    if (finaleCat) finaleCat.style.backgroundPosition = s.open ? F1_FINALE : F0;
     i++;
     blinkTimer = setTimeout(step, s.wait);
   };
