@@ -66,6 +66,8 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
 
   const cakeX = CONFIG.levelLength - 80;
 
+  const boyRunFrames = Math.max(1, Math.floor(boyRun.width / 64));
+  const catRunFrames = Math.max(1, Math.floor(catRun.width / 64));
   let frame = 0;
   let animT = 0;
   let boyFrame = 0, catFrame = 0;
@@ -130,8 +132,8 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
     animT += dt;
     if (animT >= CONFIG.frameMs) {
       animT -= CONFIG.frameMs;
-      boyFrame = (boyFrame + 1) % 3;
-      catFrame = (catFrame + 1) % 3;
+      boyFrame = (boyFrame + 1) % boyRunFrames;
+      catFrame = (catFrame + 1) % catRunFrames;
     }
 
     // collisions
@@ -188,11 +190,11 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
     });
 
     // cat
-    drawSprite(ctx, catRun, catFrame, 3, cat.x - camera - 10, cat.y - 4, 64, 64, 1);
+    drawSprite(ctx, catRun, catFrame, catRunFrames, cat.x - camera - 10, cat.y - 4, 64, 64, 1);
 
     // player
     if (player.moving || !player.onGround) {
-      drawSprite(ctx, boyRun, boyFrame, 3, player.x - camera - 10, player.y - 4, 64, 64, player.facing);
+      drawSprite(ctx, boyRun, boyFrame, boyRunFrames, player.x - camera - 10, player.y - 4, 64, 64, player.facing);
     } else {
       drawSprite(ctx, boyIdle, 0, 1, player.x - camera - 10, player.y - 4, 64, 64, player.facing);
     }
