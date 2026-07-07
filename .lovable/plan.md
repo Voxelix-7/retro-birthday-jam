@@ -1,17 +1,20 @@
-## Replace sprite assets
+## Add separate side-view idle sprite for gameplay
 
-Overwrite the existing sprite PNGs in `public/sprites/` with the newly uploaded spritesheets:
+Currently `boy_idle.png` is used in two places:
+- Intro/instructions window (front-facing portrait) — via `public/app.css`
+- Gameplay when the boy stops moving — via `public/game.js`
 
-1. `public/sprites/bat.png` ← `user-uploads://pixil-frame-0_13.png` (bat spritesheet)
-2. `public/sprites/cat_run.png` ← `user-uploads://pixil-frame-0_8-2.png` (female/Aya idle — note: currently this file drives the chasing cat character; will replace it here)
-3. `public/sprites/boy_idle.png` ← `user-uploads://pixil-frame-0_14.png` (Marwan idle)
-4. `public/sprites/boy_run.png` ← `user-uploads://pixil-frame-0_11.png` (Marwan running spritesheet)
+These need to be split into two sprites.
 
-Also bump the service worker cache version in `public/sw.js` so browsers pick up the new images instead of serving cached copies.
+### Changes
 
-No code/logic changes — same filenames, same frame layouts assumed.
+1. **Save new side-view idle** as `public/sprites/boy_stand.png` ← `user-uploads://pixil-frame-0_15.png` (side-view, single frame).
+2. **Leave `public/sprites/boy_idle.png` untouched** — it stays the front-facing portrait for the instructions window (CSS references unchanged).
+3. **`public/game.js`** — Change the third preload from `boy_idle.png` to `boy_stand.png` (rename the variable to `boyStand`) and use it in the "not moving, on ground" branch of the draw call. No other logic changes.
 
-### Question
-For #2 (female idle), the current "Aya" character in the codebase is `cat_run.png` (a 3-frame running spritesheet used for the chaser). Your upload looks like a single idle frame. Should I:
-- (a) Just overwrite `cat_run.png` with the new image (the chase animation will become a static idle), or
-- (b) Only use it as the idle preview on the intro slide and keep the existing running spritesheet for gameplay?
+### Also (from previous message, still pending)
+
+4. `public/sprites/boy_run.png` ← `user-uploads://pixil-frame-0_11-2.png` (3-frame male run)
+5. `public/sprites/cat_run.png` ← `user-uploads://female_run_Spritesheet-2.png` (3-frame female run)
+
+Frame counts derive from image width automatically, so no code change needed for #4 and #5.
