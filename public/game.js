@@ -26,9 +26,9 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
   const ctx = canvas.getContext("2d");
   ctx.imageSmoothingEnabled = false;
 
-  const [boyRun, boyIdle, catRun, cake] = await Promise.all([
+  const [boyRun, boyStand, catRun, cake] = await Promise.all([
     loadImg("/sprites/boy_run.png"),
-    loadImg("/sprites/boy_idle.png"),
+    loadImg("/sprites/boy_stand.png"),
     loadImg("/sprites/cat_run.png"),
     loadImg("/sprites/cake.png"),
   ]);
@@ -196,7 +196,7 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
     if (player.moving || !player.onGround) {
       drawSprite(ctx, boyRun, boyFrame, boyRunFrames, player.x - camera - 10, player.y - 4, 64, 64, player.facing);
     } else {
-      drawSprite(ctx, boyIdle, 0, 1, player.x - camera - 10, player.y - 4, 64, 64, player.facing);
+      drawSprite(ctx, boyStand, 0, 1, player.x - camera - 10, player.y - 4, 64, 64, player.facing);
     }
 
     // progress
