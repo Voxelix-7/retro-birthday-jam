@@ -5,7 +5,7 @@ const CONFIG = {
   gravity: 0.6,
   jump: -11,
   playerSpeed: 3.4,
-  catBaseSpeed: 3.1,
+  catBaseSpeed: 2.7,
   catGain: 0.00012, // px/frame^2, ramps up over time
   levelLength: 5400,
   groundY: 300,
