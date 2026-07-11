@@ -240,9 +240,9 @@ html, body {
 
 .row { display: flex; gap: 12px; justify-content: center; margin-top: 6px; flex-wrap: wrap; }
 
-/* Orange intro / game-over panels */
+/* Purple intro / game-over panels */
 .orange-panel {
-  background: #7a3a1a;
+  background: #69416b;
   color: #000;
   border: 5px solid #fff;
   border-radius: 18px;
