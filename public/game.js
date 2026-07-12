@@ -14,9 +14,9 @@ const CONFIG = {
 
 // Enemy positions as fractions along the level, so they scale with whatever
 // level length is passed in (defaults preserve the original layout).
-const ENEMY_FRACTIONS = [
-  0.1296, 0.213, 0.2963, 0.3889, 0.4907, 0.5926, 0.7037, 0.8148, 0.9259,
-];
+
+// TEMPORARILY DISABLED 
+//const ENEMY_FRACTIONS = [0.1296, 0.213, 0.2963, 0.3889, 0.4907, 0.5926, 0.7037, 0.8148, 0.9259,];
 
 function loadImg(src) {
   return new Promise((res) => {
@@ -153,10 +153,10 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
     if (!done) {
       // cat catch
       if (rectHit(player, cat)) return finish(false);
-      // enemies
-      for (const e of enemies) {
-        if (rectHit(player, e)) return finish(false);
-      }
+      
+      // enemies TEMPORARILY DISABLED 
+      //for (const e of enemies) { if (rectHit(player, e)) return finish(false);      }
+      
       // target (cake or envelope)
       if (player.x + player.w > targetX) return finish(true);
     }
@@ -199,12 +199,12 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
       }
     }
 
-    // enemies TEMPORARILY DISABLED
-    //enemies.forEach((e) => {
-     // const ex = e.x - camera;
-     // if (ex < -40 || ex > CONFIG.width + 40) return;
-     // drawBlob(ctx, ex, e.y, e.w, e.h);
-    //});
+    // enemies
+    enemies.forEach((e) => {
+      const ex = e.x - camera;
+      if (ex < -40 || ex > CONFIG.width + 40) return;
+      drawBlob(ctx, ex, e.y, e.w, e.h);
+    });
 
     // cat
     drawSprite(ctx, catRun, catFrame, catRunFrames, cat.x - camera - 10, cat.y - 4, 64, 64, 1);
