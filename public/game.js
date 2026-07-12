@@ -14,9 +14,7 @@ const CONFIG = {
 
 // Enemy positions as fractions along the level, so they scale with whatever
 // level length is passed in (defaults preserve the original layout).
-
-// TEMPORARILY DISABLED 
-//const ENEMY_FRACTIONS = [0.1296, 0.213, 0.2963, 0.3889, 0.4907, 0.5926, 0.7037, 0.8148, 0.9259,];
+const ENEMY_FRACTIONS = [0.1296, 0.213, 0.2963, 0.3889, 0.4907, 0.5926, 0.7037, 0.8148, 0.9259,];
 
 function loadImg(src) {
   return new Promise((res) => {
