@@ -199,12 +199,12 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
       }
     }
 
-    // enemies
-    enemies.forEach((e) => {
-      const ex = e.x - camera;
-      if (ex < -40 || ex > CONFIG.width + 40) return;
-      drawBlob(ctx, ex, e.y, e.w, e.h);
-    });
+    // enemies TEMPORARILY DISABLED
+    //enemies.forEach((e) => {
+     // const ex = e.x - camera;
+     // if (ex < -40 || ex > CONFIG.width + 40) return;
+     // drawBlob(ctx, ex, e.y, e.w, e.h);
+    //});
 
     // cat
     drawSprite(ctx, catRun, catFrame, catRunFrames, cat.x - camera - 10, cat.y - 4, 64, 64, 1);
