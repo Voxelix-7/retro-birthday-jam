@@ -7,10 +7,16 @@ const CONFIG = {
   playerSpeed: 3.4,
   catBaseSpeed: 2.7,
   catGain: 0.00012, // px/frame^2, ramps up over time
-  levelLength: 5400,
+  levelLength: 5400, // fallback if no level config is passed in
   groundY: 300,
   frameMs: 125,
 };
+
+// Enemy positions as fractions along the level, so they scale with whatever
+// level length is passed in (defaults preserve the original layout).
+const ENEMY_FRACTIONS = [
+  0.1296, 0.213, 0.2963, 0.3889, 0.4907, 0.5926, 0.7037, 0.8148, 0.9259,
+];
 
 function loadImg(src) {
   return new Promise((res) => {
@@ -22,15 +28,18 @@ function loadImg(src) {
 
 let running = false;
 
-export async function startGame({ canvas, progressEl, onLose, onWin, startPaused }) {
+export async function startGame({ canvas, progressEl, onLose, onWin, startPaused, level }) {
   const ctx = canvas.getContext("2d");
   ctx.imageSmoothingEnabled = false;
+
+  const levelLength = level?.length ?? CONFIG.levelLength;
+  const winType = level?.winType ?? "cake";
 
   const [boyRun, boyStand, catRun, cake] = await Promise.all([
     loadImg("/sprites/boy_run.png"),
     loadImg("/sprites/boy_stand.png"),
     loadImg("/sprites/cat_run.png"),
-    loadImg("/sprites/cake.png"),
+    winType === "cake" ? loadImg("/sprites/cake.png") : Promise.resolve(null),
   ]);
 
   const keys = { left: false, right: false, jump: false };
@@ -51,20 +60,20 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
 
   // Enemies: bouncing blobs at fixed x positions along level
   const enemies = [];
-  const enemyXs = [700, 1150, 1600, 2100, 2650, 3200, 3800, 4400, 5000];
-  enemyXs.forEach((x) => enemies.push({
-    x, baseY: CONFIG.groundY - 24, y: CONFIG.groundY - 24, w: 28, h: 24, phase: Math.random() * Math.PI * 2, amp: 10 + Math.random() * 6,
+  ENEMY_FRACTIONS.forEach((f) => enemies.push({
+    x: f * levelLength, baseY: CONFIG.groundY - 24, y: CONFIG.groundY - 24, w: 28, h: 24, phase: Math.random() * Math.PI * 2, amp: 10 + Math.random() * 6,
   }));
 
   // Stars parallax
   const stars = Array.from({ length: 60 }, () => ({
-    x: Math.random() * CONFIG.levelLength,
+    x: Math.random() * levelLength,
     y: Math.random() * (CONFIG.groundY - 40),
     s: Math.random() < 0.7 ? 2 : 3,
     p: 0.3 + Math.random() * 0.4,
   }));
 
-  const cakeX = CONFIG.levelLength - 80;
+  const targetX = levelLength - 80;
+  const envelope = { baseY: CONFIG.groundY - 90, y: CONFIG.groundY - 90, phase: 0 };
 
   const boyRunFrames = Math.max(1, Math.floor(boyRun.width / 64));
   const catRunFrames = Math.max(1, Math.floor(catRun.width / 64));
@@ -99,7 +108,7 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
     if (dx) player.facing = dx;
     player.x += dx * CONFIG.playerSpeed;
     if (player.x < 0) player.x = 0;
-    if (player.x > CONFIG.levelLength) player.x = CONFIG.levelLength;
+    if (player.x > levelLength) player.x = levelLength;
 
     // jump
     if (keys.jump && player.onGround) {
@@ -125,8 +134,12 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
       e.y = e.baseY - Math.abs(Math.sin(e.phase)) * e.amp;
     });
 
+    // envelope gently floats/bobs in place
+    envelope.phase += 0.045;
+    envelope.y = envelope.baseY + Math.sin(envelope.phase) * 8;
+
     // camera
-    camera = Math.max(0, Math.min(player.x - 200, CONFIG.levelLength - CONFIG.width));
+    camera = Math.max(0, Math.min(player.x - 200, levelLength - CONFIG.width));
 
     // animation frames
     animT += dt;
@@ -144,8 +157,8 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
       for (const e of enemies) {
         if (rectHit(player, e)) return finish(false);
       }
-      // cake
-      if (player.x + player.w > cakeX) return finish(true);
+      // target (cake or envelope)
+      if (player.x + player.w > targetX) return finish(true);
     }
 
     draw();
@@ -161,7 +174,7 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
     // stars parallax
     ctx.fillStyle = "#f0e6f0";
     stars.forEach((s) => {
-      const sx = ((s.x - camera * s.p) % CONFIG.levelLength + CONFIG.width) % (CONFIG.width + 200) - 100;
+      const sx = ((s.x - camera * s.p) % levelLength + CONFIG.width) % (CONFIG.width + 200) - 100;
       ctx.fillRect(sx, s.y, s.s, s.s);
     });
 
@@ -171,15 +184,19 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
     ctx.fillStyle = "#e94f8a";
     ctx.fillRect(0, CONFIG.groundY, CONFIG.width, 3);
 
-    // cake at end
-    const cakeScreenX = cakeX - camera;
-    if (cakeScreenX > -160 && cakeScreenX < CONFIG.width + 20) {
-      // pedestal
-      ctx.fillStyle = "#7a3f8a";
-      ctx.fillRect(cakeScreenX - 20, CONFIG.groundY - 12, 120, 12);
-      const scale = 1.2;
-      const cw = cake.width * scale, ch = cake.height * scale;
-      ctx.drawImage(cake, cakeScreenX - 20, CONFIG.groundY - 12 - ch, cw, ch);
+    // target at end of level
+    const targetScreenX = targetX - camera;
+    if (targetScreenX > -160 && targetScreenX < CONFIG.width + 20) {
+      if (winType === "envelope") {
+        drawEnvelope(ctx, targetScreenX - 20, envelope.y);
+      } else {
+        // pedestal
+        ctx.fillStyle = "#7a3f8a";
+        ctx.fillRect(targetScreenX - 20, CONFIG.groundY - 12, 120, 12);
+        const scale = 1.2;
+        const cw = cake.width * scale, ch = cake.height * scale;
+        ctx.drawImage(cake, targetScreenX - 20, CONFIG.groundY - 12 - ch, cw, ch);
+      }
     }
 
     // enemies
@@ -200,7 +217,7 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
     }
 
     // progress
-    const prog = Math.min(100, (player.x / cakeX) * 100);
+    const prog = Math.min(100, (player.x / targetX) * 100);
     progressEl.style.width = prog + "%";
   }
 
@@ -240,4 +257,35 @@ function drawBlob(ctx, x, y, w, h) {
   ctx.fillRect(x + 6, y + 6, 4, 4);
   ctx.fillRect(x + w - 10, y + 6, 4, 4);
   ctx.fillRect(x + 8, y + h - 8, w - 16, 3);
+}
+
+// Pixel-drawn floating envelope, used as the level-1 win target instead of
+// the cake. x/y is the top-left of a roughly 40x28 envelope body.
+function drawEnvelope(ctx, x, y) {
+  const w = 40, h = 28;
+
+  // soft glow behind it
+  ctx.fillStyle = "rgba(240,230,240,0.15)";
+  ctx.fillRect(x - 8, y - 8, w + 16, h + 16);
+
+  // body
+  ctx.fillStyle = "#f0e6f0";
+  ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = "#2d1a2e";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x, y, w, h);
+
+  // flap
+  ctx.fillStyle = "#e94f8a";
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(x + w / 2, y + h / 2 - 2);
+  ctx.lineTo(x + w, y);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  // wax seal
+  ctx.fillStyle = "#7a3f8a";
+  ctx.fillRect(x + w / 2 - 3, y + h / 2 + 2, 6, 6);
 }
