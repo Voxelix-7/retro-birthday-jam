@@ -1,4 +1,9 @@
 // Retro side-scroll chase game
+
+// Set to true while testing to skip spawning the blob obstacles (cubes).
+// The cat still chases you. Flip back to false before shipping.
+const DEBUG_DISABLE_ENEMIES = false;
+
 const CONFIG = {
   width: 960,
   height: 360,
@@ -60,9 +65,11 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
 
   // Enemies: bouncing blobs at fixed x positions along level
   const enemies = [];
-  ENEMY_FRACTIONS.forEach((f) => enemies.push({
-    x: f * levelLength, baseY: CONFIG.groundY - 24, y: CONFIG.groundY - 24, w: 28, h: 24, phase: Math.random() * Math.PI * 2, amp: 10 + Math.random() * 6,
-  }));
+  if (!DEBUG_DISABLE_ENEMIES) {
+    ENEMY_FRACTIONS.forEach((f) => enemies.push({
+      x: f * levelLength, baseY: CONFIG.groundY - 24, y: CONFIG.groundY - 24, w: 28, h: 24, phase: Math.random() * Math.PI * 2, amp: 10 + Math.random() * 6,
+    }));
+  }
 
   // Stars parallax
   const stars = Array.from({ length: 60 }, () => ({
