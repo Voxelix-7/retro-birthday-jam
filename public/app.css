@@ -159,6 +159,292 @@ html, body {
 .bat-message p { margin: 0 0 16px; }
 #get-started { margin-top: 4px; }
 
+/* LEVEL MAP */
+.screen[data-screen="map"] {
+  background: radial-gradient(ellipse at 50% -10%, #3d2440 0%, #2d1a2e 45%, #000 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.screen[data-screen="map"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 120px 40px #000;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.map-stars {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.map-moon {
+  position: absolute;
+  top: 26px;
+  right: 30px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: #f0e6f0;
+  box-shadow: 0 0 30px 10px rgba(240,230,240,0.35);
+  z-index: 0;
+}
+
+.map-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 640px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 26px;
+  padding: 28px 20px;
+  overflow-y: auto;
+}
+
+.map-title {
+  font-size: 15px;
+  color: var(--text);
+  text-shadow: 0 0 10px var(--accent), 0 0 2px #fff;
+  letter-spacing: 2px;
+  text-align: center;
+  margin: 0;
+}
+
+.level-path {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  width: 100%;
+  max-width: 380px;
+  position: relative;
+  padding: 10px 0 30px;
+}
+
+.level-path::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: repeating-linear-gradient(to bottom, var(--accent-2) 0 6px, transparent 6px 14px);
+  transform: translateX(-50%);
+  z-index: 0;
+}
+
+.level-node {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
+.level-node:nth-child(odd) { align-self: flex-start; margin-left: 8%; }
+.level-node:nth-child(even) { align-self: flex-end; margin-right: 8%; }
+
+.level-node-frame {
+  width: 72px;
+  height: 72px;
+  border: 3px solid var(--text);
+  background: #1a0d1c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+  font-size: 20px;
+  color: var(--text);
+}
+
+.level-node--unlocked .level-node-frame {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(233,79,138,0.25), 4px 4px 0 rgba(0,0,0,0.5);
+  animation: nodePulse 2.4s ease-in-out infinite;
+}
+
+@keyframes nodePulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(233,79,138,0.25), 4px 4px 0 rgba(0,0,0,0.5); }
+  50%      { box-shadow: 0 0 0 7px rgba(233,79,138,0.05), 4px 4px 0 rgba(0,0,0,0.5); }
+}
+
+.level-node--completed .level-node-frame {
+  border-color: var(--accent-2);
+  color: #cfa9db;
+}
+
+.level-node--locked .level-node-frame {
+  opacity: 0.35;
+}
+
+.level-node--locked { cursor: not-allowed; }
+
+.level-node-lock {
+  width: 14px;
+  height: 11px;
+  border: 2px solid var(--text);
+  border-radius: 2px;
+  position: relative;
+}
+
+.level-node-lock::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 1px;
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--text);
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+}
+
+.level-node-check {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  background: var(--accent-2);
+  border: 2px solid var(--text);
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--text);
+}
+
+.level-node-label {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--text);
+  text-shadow: 0 0 4px rgba(0,0,0,0.7);
+}
+
+/* COMING SOON overlay */
+.coming-soon {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+.coming-soon.hidden { display: none; }
+
+.coming-soon-box {
+  background: var(--panel);
+  border: 3px solid var(--text);
+  padding: 24px;
+  text-align: center;
+  max-width: 380px;
+  box-shadow: 6px 6px 0 rgba(0,0,0,0.4);
+  animation: pop 300ms ease;
+}
+
+.coming-soon-box p { font-size: 11px; line-height: 1.8; margin: 0 0 18px; }
+
+/* INTRO / INSTRUCTIONS */
+.intro-panel { min-height: 360px; display: flex; flex-direction: column; }
+
+.intro-slides { flex: 1; display: flex; flex-direction: column; }
+
+.slide { display: none; flex: 1; flex-direction: column; justify-content: center; gap: 20px; }
+.slide.active { display: flex; }
+
+.slide-split {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex: 1;
+}
+.slide-split .slide-text { flex: 1; text-align: left; }
+
+.slide-text {
+  color: #000;
+  font-size: 13px;
+  line-height: 1.9;
+  margin: 0;
+}
+.slide-text.center { text-align: center; margin: auto 0; }
+
+.slide-char {
+  width: 256px;
+  height: 256px;
+  image-rendering: pixelated;
+  background-repeat: no-repeat;
+  flex-shrink: 0;
+}
+.char-aya {
+  background-image: url("/sprites/cat_blink.png");
+  background-size: 512px 256px;
+  background-position: 0 0;
+}
+.char-marwan {
+  background-image: url("/sprites/boy_idle.png");
+  background-size: 256px 256px;
+}
+
+.intro-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.nav-arrow {
+  background: transparent;
+  border: 2px solid #000;
+  color: #000;
+  font-family: inherit;
+  font-size: 13px;
+  width: 34px;
+  height: 34px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.nav-arrow:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.intro-dots { display: flex; gap: 7px; }
+.intro-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.25);
+  cursor: pointer;
+  border: none;
+  padding: 0;
+}
+.intro-dot.active { background: #000; }
+
+.intro-start-wrap { display: flex; justify-content: flex-end; margin-top: 10px; min-height: 44px; }
+
+.orange-btn {
+  background: #f0e6f0;
+  color: #000;
+  border: 3px solid #fff;
+  border-radius: 10px;
+}
+
 /* GAME */
 .game-wrap {
   display: flex;
@@ -205,6 +491,17 @@ html, body {
   border: 3px solid var(--text);
   image-rendering: pixelated;
 }
+
+.game-fade {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1500ms ease;
+  z-index: 3;
+}
+.game-fade.active { opacity: 1; }
 
 .touch {
   display: none;
@@ -253,53 +550,6 @@ html, body {
   animation: pop 400ms ease;
 }
 
-.intro-panel { min-height: 360px; display: flex; flex-direction: column; }
-
-.slide { display: none; flex: 1; flex-direction: column; justify-content: space-between; gap: 20px; }
-.slide.active { display: flex; }
-
-.slide-split {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  flex: 1;
-}
-.slide-split .slide-text { flex: 1; text-align: left; }
-
-.slide-text {
-  color: #000;
-  font-size: 13px;
-  line-height: 1.9;
-  margin: 0;
-}
-.slide-text.center { text-align: center; margin: auto 0; }
-
-.slide-nav { display: flex; justify-content: flex-end; }
-
-.slide-char {
-  width: 256px;
-  height: 256px;
-  image-rendering: pixelated;
-  background-repeat: no-repeat;
-  flex-shrink: 0;
-}
-.char-aya {
-  background-image: url("/sprites/cat_blink.png");
-  background-size: 512px 256px;
-  background-position: 0 0;
-}
-.char-marwan {
-  background-image: url("/sprites/boy_idle.png");
-  background-size: 256px 256px;
-}
-
-.orange-btn {
-  background: #f0e6f0;
-  color: #000;
-  border: 3px solid #fff;
-  border-radius: 10px;
-}
-
 /* Game over panel tweaks */
 .gameover-panel {
   max-width: 480px;
@@ -313,6 +563,28 @@ html, body {
   width: 192px; height: 192px;
   background-size: 384px 192px;
   margin: 0;
+}
+
+/* LEVEL END */
+.screen[data-screen="levelend"] { background: #000; }
+
+.levelend-content {
+  max-width: 560px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 26px;
+  animation: pop 500ms ease;
+}
+
+.levelend-text {
+  font-size: 11px;
+  line-height: 1.9;
+  color: var(--text);
+  margin: 0;
+  white-space: pre-wrap;
 }
 
 /* FINALE */
@@ -379,4 +651,6 @@ html, body {
   .char-marwan { background-size: 160px 160px; }
   .slide-text { font-size: 11px; }
   .gameover-panel .blink-sprite { width: 140px; height: 140px; background-size: 280px 140px; }
+  .map-title { font-size: 12px; }
+  .level-node-frame { width: 60px; height: 60px; font-size: 16px; }
 }
