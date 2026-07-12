@@ -48,30 +48,33 @@
         </div>
       </section>
 
-      <!-- INTRO SLIDES -->
+      <!-- LEVEL MAP -->
+      <section class="screen" data-screen="map">
+        <canvas id="map-stars" class="map-stars"></canvas>
+        <div class="map-moon"></div>
+        <div class="map-content">
+          <h1 class="map-title">Choose Your Chapter</h1>
+          <div class="level-path" id="level-path"></div>
+        </div>
+        <div id="comingsoon-overlay" class="coming-soon hidden">
+          <div class="coming-soon-box">
+            <p>This chapter hasn't been written yet...</p>
+            <button id="comingsoon-close" class="btn orange-btn">Back</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- INTRO SLIDES (per-level instructions) -->
       <section class="screen" data-screen="intro">
         <div class="orange-panel intro-panel">
-          <div class="slide active" data-slide="0">
-            <div class="slide-split">
-              <p class="slide-text">This is (Idk), she's a female character based on me. She wants Chibi Marwan gone. Run and don't look back.</p>
-              <div class="slide-char char-aya"></div>
-            </div>
-            <div class="slide-nav"><button class="btn orange-btn slide-next">Next</button></div>
+          <div class="intro-slides" id="intro-slides"></div>
+          <div class="intro-nav">
+            <button id="intro-prev" class="nav-arrow" aria-label="Previous page">◀</button>
+            <div class="intro-dots" id="intro-dots"></div>
+            <button id="intro-next" class="nav-arrow" aria-label="Next page">▶</button>
           </div>
-          <div class="slide" data-slide="1">
-            <div class="slide-split">
-              <p class="slide-text">This is chibi Marwan, your non brunette character. You'll control him using either your keyboard arrows (if you're using your PC) or the arrows on screen (if you're using your phone) to run from Aya.</p>
-              <div class="slide-char char-marwan"></div>
-            </div>
-            <div class="slide-nav"><button class="btn orange-btn slide-next">Next</button></div>
-          </div>
-          <div class="slide" data-slide="2">
-            <p class="slide-text center">Your goal is to get the cake, the game should take you 40 seconds if you're good enough</p>
-            <div class="slide-nav"><button class="btn orange-btn slide-next">Next</button></div>
-          </div>
-          <div class="slide" data-slide="3">
-            <p class="slide-text center">Aya likes cubes, touch them and you lose, Loser</p>
-            <div class="slide-nav"><button id="intro-start" class="btn orange-btn">Start!</button></div>
+          <div class="intro-start-wrap">
+            <button id="intro-start" class="btn orange-btn hidden">Start!</button>
           </div>
         </div>
       </section>
@@ -82,7 +85,7 @@
           <div class="hud">
             <span class="hud-label">Marwan</span>
             <div class="hud-bar"><div id="hud-progress"></div></div>
-            <span class="hud-label">Cake</span>
+            <span class="hud-label" id="hud-target-label">Cake</span>
           </div>
           <canvas id="game" width="960" height="360"></canvas>
           <div class="touch">
@@ -91,6 +94,7 @@
             <button class="tbtn" data-key="jump" aria-label="Jump">▲</button>
           </div>
         </div>
+        <div id="game-fade" class="game-fade"></div>
       </section>
 
       <!-- GAME OVER -->
@@ -101,7 +105,15 @@
         </div>
       </section>
 
-      <!-- FINALE -->
+      <!-- LEVEL END (fade-to-black message after winning a level) -->
+      <section class="screen" data-screen="levelend">
+        <div class="levelend-content">
+          <p id="levelend-text" class="levelend-text"></p>
+          <button id="levelend-ok" class="btn orange-btn">Ok</button>
+        </div>
+      </section>
+
+      <!-- FINALE (reserved for after all chapters are complete) -->
       <section class="screen" data-screen="finale">
         <canvas id="confetti" class="confetti"></canvas>
         <div class="panel finale-panel">
