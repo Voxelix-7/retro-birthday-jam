@@ -286,4 +286,4 @@ function drawEnvelope(ctx, x, y) {
   // wax seal
   ctx.fillStyle = "#7a3f8a";
   ctx.fillRect(x + w / 2 - 3, y + h / 2 + 2, 6, 6);
-  }
+}
