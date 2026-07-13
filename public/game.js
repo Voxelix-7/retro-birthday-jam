@@ -33,7 +33,7 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
   const levelLength = level?.length ?? CONFIG.levelLength;
   const winType = level?.winType ?? "cake";
 
-  const [boyRun, boyStand, catRun, cake, chessPiece] = await Promise.all([
+  const [boyRun, boyStand, catRun, cake] = await Promise.all([
     loadImg("/sprites/boy_run.png"),
     loadImg("/sprites/boy_stand.png"),
     loadImg("/sprites/cat_run.png"),
@@ -185,23 +185,15 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
     // target at end of level
     const targetScreenX = targetX - camera;
     if (targetScreenX > -160 && targetScreenX < CONFIG.width + 20) {
-      
-      switch (winType) {
-          case "envelope":
-          drawEnvelope(ctx, targetScreenX - 20, envelope.y);
-          break;
-
-          case "cake":
-          ctx.fillStyle = "#7a3f8a";
-          ctx.fillRect(targetScreenX - 20, CONFIG.groundY - 12, 120, 12);
-          const scale = 1.2;
-          const cw = cake.width * scale, ch = cake.height * scale;
-          ctx.drawImage(cake, targetScreenX - 20, CONFIG.groundY - 12 - ch, cw, ch);
-          break;
-
-          case "chess":
-          drawChessPiece(ctx, targetScreenX - 10, envelope.y);
-          break;
+      if (winType === "envelope") {
+        drawEnvelope(ctx, targetScreenX - 20, envelope.y);
+      } else {
+        // pedestal
+        ctx.fillStyle = "#7a3f8a";
+        ctx.fillRect(targetScreenX - 20, CONFIG.groundY - 12, 120, 12);
+        const scale = 1.2;
+        const cw = cake.width * scale, ch = cake.height * scale;
+        ctx.drawImage(cake, targetScreenX - 20, CONFIG.groundY - 12 - ch, cw, ch);
       }
     }
 
@@ -294,35 +286,4 @@ function drawEnvelope(ctx, x, y) {
   // wax seal
   ctx.fillStyle = "#7a3f8a";
   ctx.fillRect(x + w / 2 - 3, y + h / 2 + 2, 6, 6);
-}
-
-function drawChessPiece(ctx, x, y) {
-
-    const s = 2; // pixel size (2 = bigger, 1 = tiny)
-
-    // Glow
-    ctx.fillStyle = "rgba(240,230,240,0.15)";
-    ctx.fillRect(x - 8, y - 8, 40 * s, 52 * s);
-
-    ctx.fillStyle = "#000"; // black chess piece
-
-    // Top ball
-    ctx.fillRect(x + 8*s, y + 0*s, 4*s, 4*s);
-
-    // Neck
-    ctx.fillRect(x + 7*s, y + 4*s, 6*s, 2*s);
-
-    // Body
-    ctx.fillRect(x + 6*s, y + 6*s, 8*s, 2*s);
-    ctx.fillRect(x + 5*s, y + 8*s,10*s, 2*s);
-    ctx.fillRect(x + 4*s, y +10*s,12*s, 8*s);
-
-    // Base
-    ctx.fillRect(x + 3*s, y +18*s,14*s, 2*s);
-    ctx.fillRect(x + 2*s, y +20*s,16*s, 2*s);
-    ctx.fillRect(x + 1*s, y +22*s,18*s, 3*s);
-
-    // Shadow
-    ctx.fillStyle = "#7a3f8a";
-    ctx.fillRect(x + 3*s, y +26*s,14*s,2*s);
-}
+  }
