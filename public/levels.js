@@ -14,7 +14,7 @@ export const LEVELS = [
     winType: "envelope",
     slides: [
       {
-        text: "This is (Idk), she's a female character based on me. She wants Chibi Marwan gone. Run and don't look back.",
+        text: "This is Aya, she's a female character based on me. She wants Chibi Marwan gone. Run and don't look back.",
         char: "aya",
       },
       {
