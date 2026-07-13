@@ -1,4 +1,5 @@
-
+// Level configuration.
+//
 // Add new levels here as they're built. Each level with `hasContent: true`
 // needs slides for the instructions modal, a length for the game world, and
 // a win condition. Levels with `hasContent: false` are placeholders — if a
