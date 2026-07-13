@@ -1,6 +1,6 @@
 // PWA + screen state machine + bat intro + level map + game + game over + level end
-import { startGame } from "/game.js";
-import { LEVELS } from "/levels.js";
+import { startGame } from "game.js";
+import { LEVELS } from "levels.js";
 
 const PASSWORD = "wanwan";
 const PROGRESS_KEY = "wanwan-progress";
