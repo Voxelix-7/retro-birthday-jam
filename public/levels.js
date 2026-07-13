@@ -14,7 +14,7 @@ export const LEVELS = [
     winType: "envelope",
     slides: [
       {
-        text: "This is (Idk), she's a female character based on me. She wants Chibi Marwan gone. Run and don't look back.",
+        text: "This is Aya, she's a female character based on me. She wants Chibi Marwan gone. Run and don't look back.",
         char: "aya",
       },
       {
@@ -34,17 +34,7 @@ export const LEVELS = [
     endingText:
       "PLACEHOLDER TEXT — replace this with the real Chapter I message whenever you're ready.",
   },
-  {
-    id:2,
-    name:"Chapter II",
-    hasContent:true,
-
-    length:6200,
-
-    winType:"chess",
-},
-
-
+  { id: 2, name: "Chapter II", hasContent: false },
   { id: 3, name: "Chapter III", hasContent: false },
   { id: 4, name: "Chapter IV", hasContent: false },
 ];
