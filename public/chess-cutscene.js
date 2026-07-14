@@ -163,4 +163,4 @@ export async function startChessCutscene({ canvas }) {
       running = false;
     },
   };
-      }
+}
