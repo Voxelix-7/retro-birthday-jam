@@ -11,7 +11,7 @@ const CONFIG = {
   jump: -11,
   playerSpeed: 3.4,
   catBaseSpeed: 2.7,
-  catGain: 0.00012, // px/frame^2, ramps up over time
+  catGain: 0.00004, // px/frame^2, ramps up over time
   levelLength: 5400, // fallback if no level config is passed in
   groundY: 300,
   frameMs: 125,
