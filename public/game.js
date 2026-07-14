@@ -1,4 +1,9 @@
 // Retro side-scroll chase game
+
+// Set to true while testing to skip spawning the blob obstacles (cubes).
+// The cat still chases you. Flip back to false before shipping.
+const DEBUG_DISABLE_ENEMIES = false;
+
 const CONFIG = {
   width: 960,
   height: 360,
@@ -6,7 +11,7 @@ const CONFIG = {
   jump: -11,
   playerSpeed: 3.4,
   catBaseSpeed: 2.7,
-  catGain: 0.00004, // px/frame^2, ramps up over time
+  catGain: 0.00012, // px/frame^2, ramps up over time
   levelLength: 5400, // fallback if no level config is passed in
   groundY: 300,
   frameMs: 125,
@@ -14,7 +19,9 @@ const CONFIG = {
 
 // Enemy positions as fractions along the level, so they scale with whatever
 // level length is passed in (defaults preserve the original layout).
-const ENEMY_FRACTIONS = [0.1296, 0.213, 0.2963, 0.3889, 0.4907, 0.5926, 0.7037, 0.8148, 0.9259,];
+const ENEMY_FRACTIONS = [
+  0.1296, 0.213, 0.2963, 0.3889, 0.4907, 0.5926, 0.7037, 0.8148, 0.9259,
+];
 
 function loadImg(src) {
   return new Promise((res) => {
@@ -58,9 +65,11 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
 
   // Enemies: bouncing blobs at fixed x positions along level
   const enemies = [];
-  ENEMY_FRACTIONS.forEach((f) => enemies.push({
-    x: f * levelLength, baseY: CONFIG.groundY - 24, y: CONFIG.groundY - 24, w: 28, h: 24, phase: Math.random() * Math.PI * 2, amp: 10 + Math.random() * 6,
-  }));
+  if (!DEBUG_DISABLE_ENEMIES) {
+    ENEMY_FRACTIONS.forEach((f) => enemies.push({
+      x: f * levelLength, baseY: CONFIG.groundY - 24, y: CONFIG.groundY - 24, w: 28, h: 24, phase: Math.random() * Math.PI * 2, amp: 10 + Math.random() * 6,
+    }));
+  }
 
   // Stars parallax
   const stars = Array.from({ length: 60 }, () => ({
@@ -151,11 +160,11 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
     if (!done) {
       // cat catch
       if (rectHit(player, cat)) return finish(false);
-      
-      // enemies TEMPORARILY DISABLED 
-      //for (const e of enemies) { if (rectHit(player, e)) return finish(false);      }
-      
-      // target (cake or envelope)
+      // enemies
+      for (const e of enemies) {
+        if (rectHit(player, e)) return finish(false);
+      }
+      // target (cake, envelope, or chess piece)
       if (player.x + player.w > targetX) return finish(true);
     }
 
@@ -187,6 +196,8 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
     if (targetScreenX > -160 && targetScreenX < CONFIG.width + 20) {
       if (winType === "envelope") {
         drawEnvelope(ctx, targetScreenX - 20, envelope.y);
+      } else if (winType === "chesspiece") {
+        drawChessPiece(ctx, targetScreenX - 11, envelope.y - 20);
       } else {
         // pedestal
         ctx.fillStyle = "#7a3f8a";
@@ -286,4 +297,33 @@ function drawEnvelope(ctx, x, y) {
   // wax seal
   ctx.fillStyle = "#7a3f8a";
   ctx.fillRect(x + w / 2 - 3, y + h / 2 + 2, 6, 6);
+}
+
+// Pixel-drawn black chess piece (pawn silhouette), used as the level-2 win
+// target. x/y is roughly the top-left of a 22x34 box.
+function drawChessPiece(ctx, x, y) {
+  const w = 22, h = 34;
+
+  // soft glow behind it — needed for contrast since the piece itself is
+  // black against the black game background.
+  ctx.fillStyle = "rgba(240,230,240,0.18)";
+  ctx.fillRect(x - 8, y - 8, w + 16, h + 16);
+
+  ctx.fillStyle = "#000";
+  ctx.strokeStyle = "#f0e6f0";
+  ctx.lineWidth = 2;
+
+  // base
+  ctx.fillRect(x + 2, y + h - 8, w - 4, 8);
+  ctx.strokeRect(x + 2, y + h - 8, w - 4, 8);
+
+  // stem
+  ctx.fillRect(x + w / 2 - 4, y + 14, 8, h - 22);
+  ctx.strokeRect(x + w / 2 - 4, y + 14, 8, h - 22);
+
+  // head
+  ctx.beginPath();
+  ctx.arc(x + w / 2, y + 10, 8, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
 }
