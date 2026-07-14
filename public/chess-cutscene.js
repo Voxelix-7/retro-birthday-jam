@@ -25,7 +25,7 @@ const BOARD = { x: 130, y: 43, w: 60, h: 50, cols: 8, rows: 8 };
 // this is the point their feet/seat should land on.
 const SEATS = {
   male: { x: 47, y: 108 },
-  female: { x: 272, y: 108 },
+  female: { x: 275, y: 108 },
 };
 const SEAT_HEIGHT = 80; // target drawn height (px, table-native space) for a seated character
 
@@ -33,8 +33,8 @@ const SEAT_HEIGHT = 80; // target drawn height (px, table-native space) for a se
 // each sheet, used to line a character up with their seat regardless of
 // whatever padding is baked into their sprite sheet.
 const CONTENT = {
-  male: { rowMin: 23, rowMax: 461, colMin: 29, colMax: 255 },
-  female: { rowMin: 8, rowMax: 253, colMin: 24, colMax: 174 },
+  male: { rowMin: 23, rowMax: 380, colMin: 29, colMax: 255 },
+  female: { rowMin: 8, rowMax: 210, colMin: 24, colMax: 174 },
 };
 
 // Board col 0 = left edge (male's side), row 0 = far edge. Icon col/row
@@ -146,17 +146,20 @@ export async function startChessCutscene({ canvas }) {
     const step = stepAt(elapsed);
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(table, 0, 0);
 
-    drawPiece(PIECE_A, slideProgress(SLIDE_A_WINDOW, elapsed));
-    drawPiece(PIECE_B, slideProgress(SLIDE_B_WINDOW, elapsed));
-
+    // 1. Draw characters first so table elements/pieces layer correctly over them
     drawCharacter(male, MALE_FRAMES, step.male, CONTENT.male, SEATS.male);
     drawCharacter(female, FEMALE_FRAMES, step.female, CONTENT.female, SEATS.female);
 
+    // 2. Draw table and chess board on top
+    ctx.drawImage(table, 0, 0);
+
+    // 3. Draw chess pieces
+    drawPiece(PIECE_A, slideProgress(SLIDE_A_WINDOW, elapsed));
+    drawPiece(PIECE_B, slideProgress(SLIDE_B_WINDOW, elapsed));
+
     requestAnimationFrame(loop);
   }
-  requestAnimationFrame(loop);
 
   return {
     stop() {
