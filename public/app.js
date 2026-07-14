@@ -1,6 +1,7 @@
 // PWA + screen state machine + bat intro + level map + game + game over + level end
 import { startGame } from "/game.js";
 import { LEVELS } from "/levels.js";
+import { startChessCutscene } from "/chess-cutscene.js";
 
 const PASSWORD = "wanwan";
 const PROGRESS_KEY = "wanwan-progress";
@@ -245,7 +246,8 @@ function initIntro(level) {
 
   // Set the HUD's target label to match this level's win condition.
   const targetLabel = document.getElementById("hud-target-label");
-  targetLabel.textContent = level.winType === "envelope" ? "Envelope" : "Cake";
+  const TARGET_LABELS = { envelope: "Envelope", chesspiece: "Chess Piece", cake: "Cake" };
+  targetLabel.textContent = TARGET_LABELS[level.winType] || "Cake";
 
   updateIntroSlide();
 }
@@ -312,24 +314,41 @@ document.getElementById("retry").addEventListener("click", () => {
   runGame();
 });
 
-// -------- Level end (fade to black -> message -> back to map) --------
+// -------- Level end (fade to black -> ending -> back to map) --------
 const gameFade = document.getElementById("game-fade");
 const FADE_MS = 1500;
+let activeCutscene = null;
 
 function handleLevelWin() {
   gameFade.classList.add("active");
   setTimeout(() => {
     completeLevel(currentLevel.id);
-    document.getElementById("levelend-text").textContent = currentLevel.endingText;
-    show("levelend");
+    const ending = currentLevel.ending;
+    if (ending.type === "cutscene") {
+      show("chesscutscene");
+      const canvas = document.getElementById("chess-canvas");
+      startChessCutscene({ canvas }).then((controller) => {
+        activeCutscene = controller;
+      });
+    } else {
+      document.getElementById("levelend-text").textContent = ending.text;
+      show("levelend");
+    }
     gameFade.classList.remove("active");
   }, FADE_MS);
 }
 
-document.getElementById("levelend-ok").addEventListener("click", () => {
+function backToMapFromEnding() {
+  if (activeCutscene) {
+    activeCutscene.stop();
+    activeCutscene = null;
+  }
   show("map");
   renderMap();
-});
+}
+
+document.getElementById("levelend-ok").addEventListener("click", backToMapFromEnding);
+document.getElementById("chesscutscene-ok").addEventListener("click", backToMapFromEnding);
 
 // -------- Cat blink pattern (2 blinks @ 3fps, pause 2s, repeat) --------
 const blinkEl = document.getElementById("blink-sprite");
