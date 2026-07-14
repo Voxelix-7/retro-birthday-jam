@@ -15,7 +15,7 @@ export const LEVELS = [
     winType: "envelope",
     slides: [
       {
-        text: "This is Aya, she's a female character based on me. She wants Chibi Marwan gone. Run and don't look back.",
+        text: "This is (Idk), she's a female character based on me. She wants Chibi Marwan gone. Run and don't look back.",
         char: "aya",
       },
       {
@@ -31,11 +31,41 @@ export const LEVELS = [
         char: null,
       },
     ],
-    // Placeholder — swap in the real message whenever you're ready.
-    endingText:
-      "PLACEHOLDER TEXT — replace this with the real Chapter I message whenever you're ready.",
+    // `ending` describes what happens after the fade-to-black on a win.
+    // type: "text" shows a message + Ok button (levelend screen).
+    // type: "cutscene" plays a full-screen looping animation + Ok button.
+    ending: {
+      type: "text",
+      // Placeholder — swap in the real message whenever you're ready.
+      text: "PLACEHOLDER TEXT — replace this with the real Chapter I message whenever you're ready.",
+    },
   },
-  { id: 2, name: "Chapter II", hasContent: false },
+  {
+    id: 2,
+    name: "Chapter II",
+    hasContent: true,
+    length: 5400,
+    winType: "chesspiece",
+    slides: [
+      {
+        text: "Marwan made it past Chapter I, but Aya isn't done with him yet. This time there's something else waiting at the end of the run.",
+        char: "marwan",
+      },
+      {
+        text: "Same controls as before: arrow keys on PC, on-screen arrows on phone/tablet.",
+        char: "aya",
+      },
+      {
+        text: "Your goal this time is to reach the floating chess piece at the end of the level.",
+        char: null,
+      },
+      {
+        text: "Aya still likes cubes. You know the rule by now.",
+        char: null,
+      },
+    ],
+    ending: { type: "cutscene" },
+  },
   { id: 3, name: "Chapter III", hasContent: false },
   { id: 4, name: "Chapter IV", hasContent: false },
 ];
