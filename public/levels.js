@@ -46,25 +46,15 @@ export const LEVELS = [
     hasContent: true,
     length: 5400,
     winType: "chesspiece",
-    slides: [
-      {
-        text: "Marwan made it past Chapter I, but Aya isn't done with him yet. This time there's something else waiting at the end of the run.",
-        char: "marwan",
-      },
-      {
-        text: "Same controls as before: arrow keys on PC, on-screen arrows on phone/tablet.",
-        char: "aya",
-      },
-      {
-        text: "Your goal this time is to reach the floating chess piece at the end of the level.",
-        char: null,
-      },
-      {
-        text: "Aya still likes cubes. You know the rule by now.",
-        char: null,
-      },
-    ],
-    ending: { type: "cutscene" },
+    // No `slides` — instructions were a level-1-only thing. Levels without
+    // slides skip straight into the (frozen-until-first-move) game.
+    ending: {
+      type: "cutscene",
+      // Shown in a popup over the frozen game right after winning, before
+      // the fade-to-black into the actual cutscene.
+      confirmText: "You won...play chess?",
+      confirmButton: "YES!",
+    },
   },
   { id: 3, name: "Chapter III", hasContent: false },
   { id: 4, name: "Chapter IV", hasContent: false },
