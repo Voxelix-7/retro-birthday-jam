@@ -95,6 +95,12 @@
           </div>
         </div>
         <div id="game-fade" class="game-fade"></div>
+        <div id="chess-confirm-overlay" class="coming-soon hidden">
+          <div class="coming-soon-box">
+            <p id="chess-confirm-text"></p>
+            <button id="chess-confirm-yes" class="btn orange-btn">YES!</button>
+          </div>
+        </div>
       </section>
 
       <!-- GAME OVER -->
@@ -113,10 +119,13 @@
         </div>
       </section>
 
-      <!-- CHESS CUTSCENE (level 2 ending — looping animated scene) -->
+      <!-- CHESS CUTSCENE (level 2 ending — plays once, "Again?" replays it) -->
       <section class="screen" data-screen="chesscutscene">
         <canvas id="chess-canvas" class="chess-canvas"></canvas>
-        <button id="chesscutscene-ok" class="btn orange-btn chesscutscene-ok">Ok</button>
+        <div class="chesscutscene-actions">
+          <button id="chesscutscene-again" class="btn ghost-outline">Again?</button>
+          <button id="chesscutscene-ok" class="btn orange-btn">Ok</button>
+        </div>
       </section>
 
       <!-- FINALE (reserved for after all chapters are complete) -->
