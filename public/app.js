@@ -1,7 +1,7 @@
 // PWA + screen state machine + bat intro + level map + game + game over + level end
 import { startGame } from "/game.js";
 import { LEVELS } from "/levels.js";
-import { startChessCutscene } from "/chess-cutscene.js";
+import { createChessCutscene } from "/chess-cutscene.js";
 
 const PASSWORD = "wanwan";
 const PROGRESS_KEY = "wanwan-progress";
@@ -160,8 +160,15 @@ function enterLevel(id) {
     return;
   }
   currentLevel = level;
-  show("intro");
-  initIntro(level);
+  if (level.slides && level.slides.length) {
+    show("intro");
+    initIntro(level);
+  } else {
+    // No instructions for this level — go straight into the (frozen until
+    // first move) game.
+    show("game");
+    runGame({ startPaused: true });
+  }
 }
 
 // Starfield background for the map screen. Cheap no-op when the map isn't
@@ -314,21 +321,39 @@ document.getElementById("retry").addEventListener("click", () => {
   runGame();
 });
 
-// -------- Level end (fade to black -> ending -> back to map) --------
+// -------- Level end (win -> [confirm] -> fade to black -> ending -> map) --------
 const gameFade = document.getElementById("game-fade");
 const FADE_MS = 1500;
 let activeCutscene = null;
 
+const chessConfirmOverlay = document.getElementById("chess-confirm-overlay");
+
 function handleLevelWin() {
+  const ending = currentLevel.ending;
+
+  if (ending.type === "cutscene") {
+    // Game stays frozen on its last frame behind this overlay until the
+    // player opts in.
+    document.getElementById("chess-confirm-text").textContent = ending.confirmText;
+    document.getElementById("chess-confirm-yes").textContent = ending.confirmButton || "Yes";
+    chessConfirmOverlay.classList.remove("hidden");
+    return;
+  }
+
+  fadeToEnding();
+}
+
+function fadeToEnding() {
+  const ending = currentLevel.ending;
   gameFade.classList.add("active");
   setTimeout(() => {
     completeLevel(currentLevel.id);
-    const ending = currentLevel.ending;
     if (ending.type === "cutscene") {
       show("chesscutscene");
       const canvas = document.getElementById("chess-canvas");
-      startChessCutscene({ canvas }).then((controller) => {
+      createChessCutscene({ canvas }).then((controller) => {
         activeCutscene = controller;
+        controller.playOnce();
       });
     } else {
       document.getElementById("levelend-text").textContent = ending.text;
@@ -337,6 +362,11 @@ function handleLevelWin() {
     gameFade.classList.remove("active");
   }, FADE_MS);
 }
+
+document.getElementById("chess-confirm-yes").addEventListener("click", () => {
+  chessConfirmOverlay.classList.add("hidden");
+  fadeToEnding();
+});
 
 function backToMapFromEnding() {
   if (activeCutscene) {
@@ -349,6 +379,9 @@ function backToMapFromEnding() {
 
 document.getElementById("levelend-ok").addEventListener("click", backToMapFromEnding);
 document.getElementById("chesscutscene-ok").addEventListener("click", backToMapFromEnding);
+document.getElementById("chesscutscene-again").addEventListener("click", () => {
+  if (activeCutscene) activeCutscene.playOnce();
+});
 
 // -------- Cat blink pattern (2 blinks @ 3fps, pause 2s, repeat) --------
 const blinkEl = document.getElementById("blink-sprite");
