@@ -95,10 +95,13 @@
           </div>
         </div>
         <div id="game-fade" class="game-fade"></div>
-        <div id="chess-confirm-overlay" class="coming-soon hidden">
+        <div id="win-confirm-overlay" class="coming-soon hidden">
           <div class="coming-soon-box">
-            <p id="chess-confirm-text"></p>
-            <button id="chess-confirm-yes" class="btn orange-btn">YES!</button>
+            <p id="win-confirm-text"></p>
+            <div class="win-confirm-actions">
+              <button id="win-confirm-no" class="btn ghost-outline hidden">No</button>
+              <button id="win-confirm-yes" class="btn orange-btn">Yes</button>
+            </div>
           </div>
         </div>
       </section>
@@ -126,6 +129,34 @@
           <button id="chesscutscene-again" class="btn ghost-outline">Again?</button>
           <button id="chesscutscene-ok" class="btn orange-btn">Ok</button>
         </div>
+      </section>
+
+      <!-- MUSIC PLAYER (level 3 ending — real playable album UI) -->
+      <section class="screen" data-screen="musicplayer">
+        <div class="musicplayer-stage">
+          <div class="dance-area" id="dance-area">
+            <!-- Aya's dancing animation goes here once that spritesheet is provided -->
+          </div>
+          <div class="player-panel">
+            <img class="player-art" src="/sprites/album_art.png" alt="Album art" />
+            <p class="player-tracktitle" id="player-tracktitle"></p>
+            <div class="player-time">
+              <span class="player-time-label" id="player-elapsed">0:00</span>
+              <div class="player-progress" id="player-progress">
+                <div class="player-progress-fill" id="player-progress-fill"></div>
+              </div>
+              <span class="player-time-label" id="player-duration">0:00</span>
+            </div>
+            <div class="player-controls">
+              <button id="player-prev" class="player-btn" aria-label="Previous">⏮</button>
+              <button id="player-playpause" class="player-btn player-btn--big" aria-label="Play">▶</button>
+              <button id="player-next" class="player-btn" aria-label="Next">⏭</button>
+            </div>
+            <ul class="player-tracklist" id="player-tracklist"></ul>
+          </div>
+        </div>
+        <audio id="player-audio"></audio>
+        <button id="musicplayer-ok" class="btn orange-btn musicplayer-ok">Ok</button>
       </section>
 
       <!-- FINALE (reserved for after all chapters are complete) -->
