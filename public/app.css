@@ -615,6 +615,180 @@ html, body {
 }
 .btn.ghost-outline:hover { background: rgba(240,230,240,0.08); }
 
+.win-confirm-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+#win-confirm-no {
+  transition: transform 150ms ease;
+}
+
+/* MUSIC PLAYER */
+.screen[data-screen="musicplayer"] {
+  background: #000;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.musicplayer-stage {
+  width: 100%;
+  max-width: 1100px;
+  height: min(78vh, 620px);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 24px;
+}
+
+.dance-area {
+  flex: 1;
+  height: 100%;
+  /* Reserved for Aya's dancing animation once that spritesheet is added. */
+}
+
+.player-panel {
+  width: min(90vw, 320px);
+  max-height: 100%;
+  overflow-y: auto;
+  background: #1a0d1c;
+  border: 3px solid var(--text);
+  border-radius: 14px;
+  box-shadow: 6px 6px 0 rgba(0,0,0,0.5);
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  animation: pop 400ms ease;
+}
+
+.player-art {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid var(--text);
+  image-rendering: pixelated;
+}
+
+.player-tracktitle {
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.6;
+  color: var(--text);
+  text-align: center;
+}
+
+.player-time {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #14080e;
+  border: 2px solid #ff0088;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.player-time-label {
+  font-size: 8px;
+  color: #ff0088;
+  flex: 0 0 auto;
+}
+
+.player-progress {
+  flex: 1;
+  height: 6px;
+  background: #2a0f1c;
+  border-radius: 999px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.player-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: #ff0088;
+}
+
+.player-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.player-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--text);
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.player-btn:hover { background: rgba(240,230,240,0.1); }
+
+.player-btn--big {
+  width: 48px;
+  height: 48px;
+  font-size: 15px;
+}
+
+.player-tracklist {
+  width: 100%;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.player-track {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 6px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.player-track:hover { background: rgba(240,230,240,0.06); }
+
+.player-track-title {
+  font-size: 8px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.player-track-duration {
+  font-size: 8px;
+  color: var(--text);
+  opacity: 0.6;
+  flex: 0 0 auto;
+}
+
+.player-track--active .player-track-title,
+.player-track--active .player-track-duration {
+  color: #ff0088;
+  opacity: 1;
+}
+
+.musicplayer-ok { animation: pop 500ms ease; }
+
+@media (max-width: 640px) {
+  .musicplayer-stage { justify-content: center; }
+  .dance-area { display: none; }
+}
+
 /* FINALE */
 .confetti { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 
