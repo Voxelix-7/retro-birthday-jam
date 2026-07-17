@@ -11,7 +11,7 @@ const CONFIG = {
   jump: -11,
   playerSpeed: 3.4,
   catBaseSpeed: 2.7,
-  catGain: 0.00004, // px/frame^2, ramps up over time
+  catGain: 0.00012, // px/frame^2, ramps up over time
   levelLength: 5400, // fallback if no level config is passed in
   groundY: 300,
   frameMs: 125,
@@ -40,11 +40,12 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
   const levelLength = level?.length ?? CONFIG.levelLength;
   const winType = level?.winType ?? "cake";
 
-  const [boyRun, boyStand, catRun, cake] = await Promise.all([
+  const [boyRun, boyStand, catRun, cake, cd] = await Promise.all([
     loadImg("/sprites/boy_run.png"),
     loadImg("/sprites/boy_stand.png"),
     loadImg("/sprites/cat_run.png"),
     winType === "cake" ? loadImg("/sprites/cake.png") : Promise.resolve(null),
+    winType === "cd" ? loadImg("/sprites/cd.png") : Promise.resolve(null),
   ]);
 
   const keys = { left: false, right: false, jump: false };
@@ -160,9 +161,11 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
     if (!done) {
       // cat catch
       if (rectHit(player, cat)) return finish(false);
-      // enemies TEMPORARILY DISABLED FOR TESTING
-      //for (const e of enemies) {if (rectHit(player, e)) return finish(false);}
-      // target (cake, envelope, or chess piece)
+      // enemies
+      for (const e of enemies) {
+        if (rectHit(player, e)) return finish(false);
+      }
+      // target (cake, envelope, chess piece, or cd)
       if (player.x + player.w > targetX) return finish(true);
     }
 
@@ -196,6 +199,9 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
         drawEnvelope(ctx, targetScreenX - 20, envelope.y);
       } else if (winType === "chesspiece") {
         drawChessPiece(ctx, targetScreenX - 11, envelope.y - 20);
+      } else if (winType === "cd") {
+        const cdSize = 40;
+        ctx.drawImage(cd, targetScreenX - cdSize / 2, envelope.y - cdSize / 2, cdSize, cdSize);
       } else {
         // pedestal
         ctx.fillStyle = "#7a3f8a";
