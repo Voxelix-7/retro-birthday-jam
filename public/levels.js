@@ -31,9 +31,15 @@ export const LEVELS = [
         char: null,
       },
     ],
-    // `ending` describes what happens after the fade-to-black on a win.
+    // `ending` describes what happens after a win.
     // type: "text" shows a message + Ok button (levelend screen).
-    // type: "cutscene" plays a full-screen looping animation + Ok button.
+    // type: "cutscene" plays a full-screen animation once + Ok/Again? buttons.
+    // type: "musicplayer" shows a real, playable album UI + Ok button.
+    //
+    // `confirm` (optional) shows a popup over the frozen game right after
+    // winning, before anything else happens. `yes` proceeds to the ending;
+    // `no` (optional) does nothing except, if `noShrinks` is set, visibly
+    // shrink a little on every click.
     ending: {
       type: "text",
       // Placeholder — swap in the real message whenever you're ready.
@@ -50,12 +56,24 @@ export const LEVELS = [
     // slides skip straight into the (frozen-until-first-move) game.
     ending: {
       type: "cutscene",
-      // Shown in a popup over the frozen game right after winning, before
-      // the fade-to-black into the actual cutscene.
-      confirmText: "You won...play chess?",
-      confirmButton: "YES!",
+      confirm: { text: "You won...play chess?", yes: "YES!" },
     },
   },
-  { id: 3, name: "Chapter III", hasContent: false },
+  {
+    id: 3,
+    name: "Chapter III",
+    hasContent: true,
+    length: 5400,
+    winType: "cd",
+    ending: {
+      type: "musicplayer",
+      confirm: {
+        text: "You like my tasts in music right? :D",
+        yes: "Yes",
+        no: "No",
+        noShrinks: true,
+      },
+    },
+  },
   { id: 4, name: "Chapter IV", hasContent: false },
 ];
