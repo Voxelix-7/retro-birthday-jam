@@ -2,7 +2,7 @@
 
 // Set to true while testing to skip spawning the blob obstacles (cubes).
 // The cat still chases you. Flip back to false before shipping.
-const DEBUG_DISABLE_ENEMIES = false;
+const DEBUG_DISABLE_ENEMIES = true;
 
 const CONFIG = {
   width: 960,
