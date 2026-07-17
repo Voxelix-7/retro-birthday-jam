@@ -2,6 +2,7 @@
 import { startGame } from "/game.js";
 import { LEVELS } from "/levels.js";
 import { createChessCutscene } from "/chess-cutscene.js";
+import { initMusicPlayer, stopMusicPlayer } from "/music-player.js";
 
 const PASSWORD = "wanwan";
 const PROGRESS_KEY = "wanwan-progress";
@@ -253,7 +254,7 @@ function initIntro(level) {
 
   // Set the HUD's target label to match this level's win condition.
   const targetLabel = document.getElementById("hud-target-label");
-  const TARGET_LABELS = { envelope: "Envelope", chesspiece: "Chess Piece", cake: "Cake" };
+  const TARGET_LABELS = { envelope: "Envelope", chesspiece: "Chess Piece", cd: "CD", cake: "Cake" };
   targetLabel.textContent = TARGET_LABELS[level.winType] || "Cake";
 
   updateIntroSlide();
@@ -326,22 +327,47 @@ const gameFade = document.getElementById("game-fade");
 const FADE_MS = 1500;
 let activeCutscene = null;
 
-const chessConfirmOverlay = document.getElementById("chess-confirm-overlay");
+const winConfirmOverlay = document.getElementById("win-confirm-overlay");
+const winConfirmText = document.getElementById("win-confirm-text");
+const winConfirmYesBtn = document.getElementById("win-confirm-yes");
+const winConfirmNoBtn = document.getElementById("win-confirm-no");
+let noShrinkLevel = 0;
 
 function handleLevelWin() {
   const ending = currentLevel.ending;
 
-  if (ending.type === "cutscene") {
+  if (ending.confirm) {
     // Game stays frozen on its last frame behind this overlay until the
     // player opts in.
-    document.getElementById("chess-confirm-text").textContent = ending.confirmText;
-    document.getElementById("chess-confirm-yes").textContent = ending.confirmButton || "Yes";
-    chessConfirmOverlay.classList.remove("hidden");
+    noShrinkLevel = 0;
+    winConfirmNoBtn.style.transform = "";
+    winConfirmText.textContent = ending.confirm.text;
+    winConfirmYesBtn.textContent = ending.confirm.yes || "Yes";
+    if (ending.confirm.no) {
+      winConfirmNoBtn.textContent = ending.confirm.no;
+      winConfirmNoBtn.classList.remove("hidden");
+    } else {
+      winConfirmNoBtn.classList.add("hidden");
+    }
+    winConfirmOverlay.classList.remove("hidden");
     return;
   }
 
   fadeToEnding();
 }
+
+winConfirmYesBtn.addEventListener("click", () => {
+  winConfirmOverlay.classList.add("hidden");
+  fadeToEnding();
+});
+
+winConfirmNoBtn.addEventListener("click", () => {
+  // Decorative only — shrinks a bit more each click, does nothing else.
+  if (!currentLevel.ending.confirm?.noShrinks) return;
+  noShrinkLevel++;
+  const scale = Math.max(0.12, 1 - noShrinkLevel * 0.12);
+  winConfirmNoBtn.style.transform = `scale(${scale})`;
+});
 
 function fadeToEnding() {
   const ending = currentLevel.ending;
@@ -355,6 +381,9 @@ function fadeToEnding() {
         activeCutscene = controller;
         controller.playOnce();
       });
+    } else if (ending.type === "musicplayer") {
+      show("musicplayer");
+      initMusicPlayer();
     } else {
       document.getElementById("levelend-text").textContent = ending.text;
       show("levelend");
@@ -363,16 +392,12 @@ function fadeToEnding() {
   }, FADE_MS);
 }
 
-document.getElementById("chess-confirm-yes").addEventListener("click", () => {
-  chessConfirmOverlay.classList.add("hidden");
-  fadeToEnding();
-});
-
 function backToMapFromEnding() {
   if (activeCutscene) {
     activeCutscene.stop();
     activeCutscene = null;
   }
+  stopMusicPlayer();
   show("map");
   renderMap();
 }
@@ -382,6 +407,8 @@ document.getElementById("chesscutscene-ok").addEventListener("click", backToMapF
 document.getElementById("chesscutscene-again").addEventListener("click", () => {
   if (activeCutscene) activeCutscene.playOnce();
 });
+document.getElementById("musicplayer-ok").addEventListener("click", backToMapFromEnding);
+
 
 // -------- Cat blink pattern (2 blinks @ 3fps, pause 2s, repeat) --------
 const blinkEl = document.getElementById("blink-sprite");
