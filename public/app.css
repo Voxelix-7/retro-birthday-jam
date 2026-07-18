@@ -628,7 +628,7 @@ html, body {
 /* MUSIC PLAYER */
 
 .screen[data-screen="musicplayer"] {  
-  background-image: url("/sprites/musicplayer-bg.jpg");
+  background: #000;
   flex-direction: column;
   gap: 20px;
 }
