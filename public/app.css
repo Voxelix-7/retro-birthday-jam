@@ -628,20 +628,26 @@ html, body {
 /* MUSIC PLAYER */
 .screen[data-screen="musicplayer"] {
   background: #000;
+  /* .screen already centers its content via flex (align-items/justify-content) */
 }
 
 /* One container holds everything (sprite, player, Ok button) and carries the
-   background image itself. `inset` gives a small uniform margin from the
-   screen edges. background-size:contain never stretches or harshly crops
-   the art; background-color matches the screen so any letterbox gap is
-   invisible. Aya/player/Ok are positioned as percentages of this box. */
+   background image. It's locked to the image's exact aspect ratio (1248:696)
+   so background-size can safely be 100% 100% with zero distortion AND zero
+   letterboxing — which matters because Aya/player/Ok below are positioned as
+   percentages of this box, and that only lines up with the visible art if
+   this box's shape always matches the art's shape exactly.
+   The width formula picks whichever of (available width) or (available
+   height converted through the aspect ratio) is smaller, so the box always
+   fits fully within the screen with a small margin, on any viewport. */
 .musicplayer-container {
-  position: absolute;
-  inset: 14px;
+  position: relative;
+  aspect-ratio: 1248 / 696;
+  width: min(calc(100vw - 28px), calc((100vh - 28px) * 1248 / 696));
+  max-width: 100%;
   background-color: #000;
   background-image: url("/sprites/musicplayer-bg.jpg");
-  background-size: contain;
-  background-position: center;
+  background-size: 100% 100%;
   background-repeat: no-repeat;
   border-radius: 10px;
   overflow: hidden;
@@ -665,7 +671,9 @@ html, body {
   right: 4%;
   top: 50%;
   transform: translateY(-50%);
-  width: min(80vw, 300px);
+  width: 27%;
+  min-width: 200px;
+  max-width: 320px;
   max-height: 88%;
   overflow-y: auto;
   background: #1a0d1c;
@@ -809,12 +817,19 @@ html, body {
 @media (max-width: 640px) {
   .aya-sprite { display: none; }
   .player-panel {
-    position: absolute;
+    position: fixed;
     left: 50%;
-    top: 46%;
+    top: 50%;
     right: auto;
     transform: translate(-50%, -50%);
     width: min(86vw, 300px);
+    max-height: 78vh;
+  }
+  .musicplayer-ok {
+    position: fixed;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
   }
 }
 
