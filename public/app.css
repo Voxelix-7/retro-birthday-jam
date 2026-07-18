@@ -626,8 +626,9 @@ html, body {
 }
 
 /* MUSIC PLAYER */
-.screen[data-screen="musicplayer"] {
-  background: #000;
+
+.screen[data-screen="musicplayer"] {  
+  background-image: url("/sprites/musicplayer-bg.jpg");
   flex-direction: column;
   gap: 20px;
 }
@@ -649,14 +650,6 @@ html, body {
   max-width: 100%;
   overflow: hidden;
   border-radius: 8px;
-}
-
-.musicplayer-bg {
-  position: absolute;
-  inset: 0;
-  background-image: url("/sprites/musicplayer-bg.jpg");
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
 }
 
 /* Positioned so Aya's seat lines up with the hillside in the background.
