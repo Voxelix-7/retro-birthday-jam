@@ -634,10 +634,14 @@ html, body {
 }
 
 .musicplayer-stage {
+ background-image: url("/sprites/musicplayer-bg.jpg");
   width: 100%;
   max-width: 1100px;
   height: min(78vh, 620px);
+  margin: 5px;
+  border-radius: 20px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: flex-end;
   gap: 24px;
@@ -659,7 +663,7 @@ html, body {
 .aya-sprite {
   position: absolute;
   left: 4.8%;
-  top: 43.7%;
+  top: 64.7%;
   width: 18.4%;
   aspect-ratio: 450 / 413;
   background-image: url("/sprites/aya_grass.png");
