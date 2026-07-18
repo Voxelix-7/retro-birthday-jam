@@ -120,4 +120,35 @@ export function initMusicPlayer() {
 // in the background.
 export function stopMusicPlayer() {
   if (audioEl) audioEl.pause();
-                                                    }
+}
+
+// -------- Aya idle animation (background scene) --------
+// Fully independent of the audio player — just loops on its own timer for
+// as long as the screen is visible. Uses the classic CSS sprite trick: with
+// background-size set to 600% (6 frames), background-position-x values of
+// 0/20/40/60/80/100% land exactly on frames 0-5, at any element size.
+const AYA_FRAME_COUNT = 6;
+const AYA_FRAME_DURATIONS = [500, 1000, 1000, 2000, 500, 500];
+
+let ayaTimer = null;
+
+export function startAyaIdle() {
+  stopAyaIdle();
+  const el = document.getElementById("aya-sprite");
+  if (!el) return;
+
+  let index = 0;
+  const step = () => {
+    el.style.backgroundPositionX = `${(index * 100) / (AYA_FRAME_COUNT - 1)}%`;
+    ayaTimer = setTimeout(() => {
+      index = (index + 1) % AYA_FRAME_COUNT;
+      step();
+    }, AYA_FRAME_DURATIONS[index]);
+  };
+  step();
+}
+
+export function stopAyaIdle() {
+  if (ayaTimer) clearTimeout(ayaTimer);
+  ayaTimer = null;
+}
