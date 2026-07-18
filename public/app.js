@@ -2,7 +2,7 @@
 import { startGame } from "/game.js";
 import { LEVELS } from "/levels.js";
 import { createChessCutscene } from "/chess-cutscene.js";
-import { initMusicPlayer, stopMusicPlayer } from "/music-player.js";
+import { initMusicPlayer, stopMusicPlayer, startAyaIdle, stopAyaIdle } from "/music-player.js";
 
 const PASSWORD = "wanwan";
 const PROGRESS_KEY = "wanwan-progress";
@@ -384,6 +384,7 @@ function fadeToEnding() {
     } else if (ending.type === "musicplayer") {
       show("musicplayer");
       initMusicPlayer();
+      startAyaIdle();
     } else {
       document.getElementById("levelend-text").textContent = ending.text;
       show("levelend");
@@ -398,6 +399,7 @@ function backToMapFromEnding() {
     activeCutscene = null;
   }
   stopMusicPlayer();
+  stopAyaIdle();
   show("map");
   renderMap();
 }
