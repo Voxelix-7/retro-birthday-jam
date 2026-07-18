@@ -626,45 +626,32 @@ html, body {
 }
 
 /* MUSIC PLAYER */
-
-.screen[data-screen="musicplayer"] {  
+.screen[data-screen="musicplayer"] {
   background: #000;
-  flex-direction: column;
-  gap: 20px;
 }
 
-.musicplayer-stage {
- background-image: url("/sprites/musicplayer-bg.jpg");
-  width: 100%;
-  max-width: 1100px;
-  height: min(78vh, 620px);
-  margin: 5px;
-  border-radius: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 24px;
-}
-
-.musicplayer-scene {
-  position: relative;
-  height: 100%;
-  aspect-ratio: 1248 / 696;
-  max-width: 100%;
+/* One container holds everything (sprite, player, Ok button) and carries the
+   background image itself. `inset` gives a small uniform margin from the
+   screen edges. background-size:contain never stretches or harshly crops
+   the art; background-color matches the screen so any letterbox gap is
+   invisible. Aya/player/Ok are positioned as percentages of this box. */
+.musicplayer-container {
+  position: absolute;
+  inset: 14px;
+  background-color: #000;
+  background-image: url("/sprites/musicplayer-bg.jpg");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 10px;
   overflow: hidden;
-  border-radius: 8px;
 }
 
-/* Positioned so Aya's seat lines up with the hillside in the background.
-   left/top/width are all percentages of .musicplayer-scene, so they scale
-   together with the background at any viewport size — nudge these three if
-   the seating looks slightly off. */
 .aya-sprite {
   position: absolute;
-  left: 4.8%;
-  top: 64.7%;
-  width: 18.4%;
+  left: 3%;
+  bottom: 4%;
+  width: 20%;
   aspect-ratio: 450 / 413;
   background-image: url("/sprites/aya_grass.png");
   background-repeat: no-repeat;
@@ -674,8 +661,12 @@ html, body {
 }
 
 .player-panel {
-  width: min(90vw, 320px);
-  max-height: 100%;
+  position: absolute;
+  right: 4%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: min(80vw, 300px);
+  max-height: 88%;
   overflow-y: auto;
   background: #1a0d1c;
   border: 3px solid var(--text);
@@ -807,11 +798,24 @@ html, body {
   opacity: 1;
 }
 
-.musicplayer-ok { animation: pop 500ms ease; }
+.musicplayer-ok {
+  position: absolute;
+  left: 50%;
+  bottom: 3%;
+  transform: translateX(-50%);
+  animation: pop 500ms ease;
+}
 
 @media (max-width: 640px) {
-  .musicplayer-stage { justify-content: center; }
-  .musicplayer-scene { display: none; }
+  .aya-sprite { display: none; }
+  .player-panel {
+    position: absolute;
+    left: 50%;
+    top: 46%;
+    right: auto;
+    transform: translate(-50%, -50%);
+    width: min(86vw, 300px);
+  }
 }
 
 /* FINALE */
