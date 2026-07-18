@@ -642,10 +642,38 @@ html, body {
   gap: 24px;
 }
 
-.dance-area {
-  flex: 1;
+.musicplayer-scene {
+  position: relative;
   height: 100%;
-  /* Reserved for Aya's dancing animation once that spritesheet is added. */
+  aspect-ratio: 1248 / 696;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.musicplayer-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url("/sprites/musicplayer-bg.jpg");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+/* Positioned so Aya's seat lines up with the hillside in the background.
+   left/top/width are all percentages of .musicplayer-scene, so they scale
+   together with the background at any viewport size — nudge these three if
+   the seating looks slightly off. */
+.aya-sprite {
+  position: absolute;
+  left: 4.8%;
+  top: 43.7%;
+  width: 18.4%;
+  aspect-ratio: 450 / 413;
+  background-image: url("/sprites/aya_grass.png");
+  background-repeat: no-repeat;
+  background-size: 600% 100%; /* 6 frames */
+  background-position-x: 0%;
+  image-rendering: pixelated;
 }
 
 .player-panel {
@@ -786,7 +814,7 @@ html, body {
 
 @media (max-width: 640px) {
   .musicplayer-stage { justify-content: center; }
-  .dance-area { display: none; }
+  .musicplayer-scene { display: none; }
 }
 
 /* FINALE */
