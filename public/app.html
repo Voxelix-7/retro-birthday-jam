@@ -133,37 +133,28 @@
 
       <!-- MUSIC PLAYER (level 3 ending — real playable album UI) -->
       <section class="screen" data-screen="musicplayer">
-        <div class="musicplayer-stage">          
-            <div class="musicplayer-scene">
-            <div class="aya-sprite" id="aya-sprite"></div>
-          </div>
-
+        <div class="musicplayer-container">
+          <div class="aya-sprite" id="aya-sprite"></div>
           <div class="player-panel">
-            <img class="player-art" src="/sprites/album_art.png" alt="Album Cover" />
+            <img class="player-art" src="/sprites/album_art.png" alt="Album art" />
             <p class="player-tracktitle" id="player-tracktitle"></p>
-
             <div class="player-time">
               <span class="player-time-label" id="player-elapsed">0:00</span>
               <div class="player-progress" id="player-progress">
                 <div class="player-progress-fill" id="player-progress-fill"></div>
               </div>
-              
               <span class="player-time-label" id="player-duration">0:00</span>
             </div>
-
             <div class="player-controls">
               <button id="player-prev" class="player-btn" aria-label="Previous">⏮</button>
               <button id="player-playpause" class="player-btn player-btn--big" aria-label="Play">▶</button>
               <button id="player-next" class="player-btn" aria-label="Next">⏭</button>
             </div>
-
             <ul class="player-tracklist" id="player-tracklist"></ul>
           </div>
-        <audio id="player-audio"></audio>
-        <button id="musicplayer-ok" class="btn orange-btn musicplayer-ok">Ok</button>
-          
+          <button id="musicplayer-ok" class="btn orange-btn musicplayer-ok">Ok</button>
         </div>
-
+        <audio id="player-audio"></audio>
       </section>
 
       <!-- FINALE (reserved for after all chapters are complete) -->
