@@ -75,5 +75,13 @@ export const LEVELS = [
       },
     },
   },
-  { id: 4, name: "Chapter IV", hasContent: false },
+  {
+    id: 4,
+    name: "Chapter IV",
+    hasContent: true,
+    length: 5400,
+    winType: "cake",
+    // No `confirm` — winning goes straight to the fade-to-black + finale.
+    ending: { type: "finale" },
+  },
 ];
