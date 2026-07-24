@@ -11,7 +11,7 @@ const CONFIG = {
   jump: -11,
   playerSpeed: 3.4,
   catBaseSpeed: 2.7,
-  catGain: 0.00004, // px/frame^2, ramps up over time
+  catGain: 0.00012, // px/frame^2, ramps up over time
   levelLength: 5400, // fallback if no level config is passed in
   groundY: 300,
   frameMs: 125,
@@ -44,7 +44,7 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
     loadImg("/sprites/boy_run.png"),
     loadImg("/sprites/boy_stand.png"),
     loadImg("/sprites/cat_run.png"),
-    winType === "cake" ? loadImg("/sprites/cake.png") : Promise.resolve(null),
+    winType === "cake" ? loadImg("/sprites/cake_target.png") : Promise.resolve(null),
     winType === "cd" ? loadImg("/sprites/cd.png") : Promise.resolve(null),
   ]);
 
@@ -161,10 +161,10 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
     if (!done) {
       // cat catch
       if (rectHit(player, cat)) return finish(false);
-      // enemies TEMPORARILY DISABLED 
-      //for (const e of enemies) {
-        //if (rectHit(player, e)) return finish(false);
-      //}
+      // enemies
+      for (const e of enemies) {
+        if (rectHit(player, e)) return finish(false);
+      }
       // target (cake, envelope, chess piece, or cd)
       if (player.x + player.w > targetX) return finish(true);
     }
@@ -203,12 +203,9 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
         const cdSize = 40;
         ctx.drawImage(cd, targetScreenX - cdSize / 2, envelope.y - cdSize / 2, cdSize, cdSize);
       } else {
-        // pedestal
-        ctx.fillStyle = "#7a3f8a";
-        ctx.fillRect(targetScreenX - 20, CONFIG.groundY - 12, 120, 12);
-        const scale = 1.2;
-        const cw = cake.width * scale, ch = cake.height * scale;
-        ctx.drawImage(cake, targetScreenX - 20, CONFIG.groundY - 12 - ch, cw, ch);
+        // cake floats/bobs like the other targets
+        const cakeSize = 44;
+        ctx.drawImage(cake, targetScreenX - cakeSize / 2, envelope.y - cakeSize / 2, cakeSize, cakeSize);
       }
     }
 
@@ -274,7 +271,7 @@ function drawBlob(ctx, x, y, w, h) {
 
 // Pixel-drawn floating envelope, used as the level-1 win target instead of
 // the cake. x/y is the top-left of a roughly 40x28 envelope body.
-function drawEnvelope(ctx, x, y) {
+export function drawEnvelope(ctx, x, y) {
   const w = 40, h = 28;
 
   // soft glow behind it
@@ -305,7 +302,7 @@ function drawEnvelope(ctx, x, y) {
 
 // Pixel-drawn black chess piece (pawn silhouette), used as the level-2 win
 // target. x/y is roughly the top-left of a 22x34 box.
-function drawChessPiece(ctx, x, y) {
+export function drawChessPiece(ctx, x, y) {
   const w = 22, h = 34;
 
   // soft glow behind it — needed for contrast since the piece itself is
