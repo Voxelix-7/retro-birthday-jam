@@ -629,6 +629,10 @@ html, body {
 .screen[data-screen="musicplayer"] {
   background: #000;
   /* .screen already centers its content via flex (align-items/justify-content) */
+  /* Needs to render above the finale screen for the "replay from finale"
+     case, where both screens are briefly active at once (finale stays
+     mounted underneath so "Exit" can reveal it instantly). */
+  z-index: 10;
 }
 
 /* One container holds everything (sprite, player, Ok button) and carries the
@@ -834,63 +838,107 @@ html, body {
 }
 
 /* FINALE */
-.confetti { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.screen[data-screen="finale"] {
+  background: #2d1a2e;
+}
 
-.finale-panel { max-width: 720px; }
-
-.finale-scene {
+.finale-content {
+  width: 100%;
+  max-width: 1000px;
   display: flex;
-  align-items: end;
-  justify-content: center;
-  gap: 18px;
-  margin-bottom: 18px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
 }
 
-.sprite { image-rendering: pixelated; }
-
-.boy-idle-sprite {
-  width: 128px; height: 128px;
-  background: url("/sprites/boy_idle.png") no-repeat;
-  background-size: 128px 128px;
+.finale-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
 }
 
-.cake-sprite {
-  width: 160px; height: 60px;
-  background: url("/sprites/cake.png") no-repeat;
-  background-size: 160px 60px;
-  transform: scale(1.4);
-  transform-origin: bottom center;
-  animation: bob 2s ease-in-out infinite;
-}
-
-.cat-blink-sprite {
-  width: 128px; height: 128px;
-  background: url("/sprites/cat_blink.png") no-repeat;
-  background-size: 256px 128px;
-  background-position: 0 0;
-}
-
-@keyframes bob {
-  0%,100% { transform: scale(1.4) translateY(0); }
-  50%     { transform: scale(1.4) translateY(-6px); }
-}
-
-.finale-text {
-  font-size: 11px;
-  line-height: 1.9;
-  color: var(--text);
+.finale-title,
+.finale-subtitle {
+  font-family: "Pacifico", cursive;
+  color: #f0e6f0;
   margin: 0;
-  min-height: 120px;
-  text-align: left;
-  white-space: pre-wrap;
+  line-height: 1.2;
+}
+
+.finale-title { font-size: 52px; }
+.finale-subtitle { font-size: 28px; }
+
+.finale-icons {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.finale-icon-btn {
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  border: 2px solid var(--text);
+  border-radius: 10px;
+  background: rgba(240, 230, 240, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 150ms ease, transform 100ms ease;
+}
+.finale-icon-btn:hover { background: rgba(240, 230, 240, 0.15); transform: translateY(-2px); }
+
+.finale-icon-btn canvas {
+  image-rendering: pixelated;
+}
+
+.finale-icon-img {
+  width: 48px;
+  height: 48px;
+  image-rendering: pixelated;
+}
+
+.finale-map-btn {
+  height: 64px;
+  font-size: 11px;
+}
+
+.finale-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  flex-shrink: 0;
+}
+
+.finale-cake {
+  width: 220px;
+  height: 220px;
+  background-image: url("/sprites/cake_animation.png");
+  background-repeat: no-repeat;
+  background-size: 200% 100%; /* 2 frames */
+  background-position-x: 0%;
+  image-rendering: pixelated;
+}
+
+@media (max-width: 760px) {
+  .finale-content {
+    flex-direction: column-reverse;
+    gap: 20px;
+    text-align: center;
+  }
+  .finale-left { align-items: center; }
+  .finale-title { font-size: 38px; }
+  .finale-subtitle { font-size: 22px; }
+  .finale-cake { width: 160px; height: 160px; }
 }
 
 @media (max-width: 640px) {
   .title { font-size: 14px; }
   .bat-sprite { width: 192px; height: 128px; background-size: 384px 128px; }
-  .finale-scene { gap: 8px; }
-  .boy-idle-sprite, .cat-blink-sprite { width: 80px; height: 80px; background-size: 160px 80px; }
-  .cake-sprite { width: 120px; height: 45px; background-size: 120px 45px; }
   .slide-split { flex-direction: column; gap: 12px; }
   .slide-char { width: 160px; height: 160px; }
   .char-aya { background-size: 320px 160px; }
