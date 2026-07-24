@@ -919,7 +919,7 @@ html, body {
   height: 220px;
   background-image: url("/sprites/cake_animation.png");
   background-repeat: no-repeat;
-  background-size: 200% 100%; /* 2 frames */
+  background-size: auto 100%; /* 2 frames */
   background-position-x: 0%;
   image-rendering: pixelated;
 }
