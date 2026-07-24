@@ -3,6 +3,7 @@ import { startGame } from "/game.js";
 import { LEVELS } from "/levels.js";
 import { createChessCutscene } from "/chess-cutscene.js";
 import { initMusicPlayer, stopMusicPlayer, startAyaIdle, stopAyaIdle } from "/music-player.js";
+import { startCakeFlicker, stopCakeFlicker, drawFinaleIcons } from "/finale.js";
 
 const PASSWORD = "wanwan";
 const PROGRESS_KEY = "wanwan-progress";
@@ -326,6 +327,10 @@ document.getElementById("retry").addEventListener("click", () => {
 const gameFade = document.getElementById("game-fade");
 const FADE_MS = 1500;
 let activeCutscene = null;
+// Where "Ok"/"Exit" sends the player back to once they're done with an
+// ending. Normally "map"; replaying an ending from the finale screen (see
+// replayEnding below) sets this to "finale" instead.
+let returnTarget = "map";
 
 const winConfirmOverlay = document.getElementById("win-confirm-overlay");
 const winConfirmText = document.getElementById("win-confirm-text");
@@ -385,6 +390,9 @@ function fadeToEnding() {
       show("musicplayer");
       initMusicPlayer();
       startAyaIdle();
+    } else if (ending.type === "finale") {
+      show("finale");
+      initFinale();
     } else {
       document.getElementById("levelend-text").textContent = ending.text;
       show("levelend");
@@ -400,8 +408,15 @@ function backToMapFromEnding() {
   }
   stopMusicPlayer();
   stopAyaIdle();
-  show("map");
-  renderMap();
+  document.getElementById("musicplayer-ok").textContent = "Ok";
+
+  if (returnTarget === "finale") {
+    returnTarget = "map";
+    show("finale");
+  } else {
+    show("map");
+    renderMap();
+  }
 }
 
 document.getElementById("levelend-ok").addEventListener("click", backToMapFromEnding);
@@ -413,15 +428,13 @@ document.getElementById("musicplayer-ok").addEventListener("click", backToMapFro
 
 
 // -------- Cat blink pattern (2 blinks @ 3fps, pause 2s, repeat) --------
+// Used by the game-over screen only now — the finale no longer has a cat.
 const blinkEl = document.getElementById("blink-sprite");
 let blinkTimer = null;
 function startBlinkPattern() {
   stopBlinkPattern();
   const F0 = "0 0";
-  // gameover .blink-sprite renders the sheet at 384x192 (2 frames of 192w),
-  // finale .cat-blink-sprite renders it at 256x128 (2 frames of 128w).
-  const F1_GAMEOVER = "-192px 0";
-  const F1_FINALE = "-128px 0";
+  const F1 = "-192px 0"; // .blink-sprite renders the sheet at 384x192 (2 frames of 192w)
   const FRAME_MS = 333; // 3 fps
   const PAUSE_MS = 2000;
   // Sequence: F0->F1->F0->F1->F0 (2 blinks) then hold F0 for 2s
@@ -435,8 +448,7 @@ function startBlinkPattern() {
   let i = 0;
   const step = () => {
     const s = seq[i % seq.length];
-    blinkEl.style.backgroundPosition = s.open ? F1_GAMEOVER : F0;
-    if (finaleCat) finaleCat.style.backgroundPosition = s.open ? F1_FINALE : F0;
+    blinkEl.style.backgroundPosition = s.open ? F1 : F0;
     i++;
     blinkTimer = setTimeout(step, s.wait);
   };
@@ -447,56 +459,53 @@ function stopBlinkPattern() {
   blinkTimer = null;
 }
 
-// -------- Finale (reserved for after all chapters are complete) --------
-const finaleCat = document.getElementById("finale-cat");
-const finaleText = document.getElementById("finale-text");
-const FINAL_MSG =
-  "Marwan Mohamed Ezzat Emam, Dinawy. Happy 18th birthday, don't get mad at me for trying to kill you. I hope you marry by 22 years old (because 20 doesn't make sense). Bye!";
+// -------- Finale (Chapter IV ending) --------
+let finaleInitialized = false;
 
-function startFinale() {
-  startBlinkPattern(); // reuse pattern for finale cat too
-  typeText(finaleText, FINAL_MSG, 40);
-  startConfetti();
+function initFinale() {
+  startCakeFlicker();
+  if (finaleInitialized) return;
+  finaleInitialized = true;
+
+  drawFinaleIcons();
+
+  document.getElementById("finale-icon-envelope").addEventListener("click", () => replayEnding(1));
+  document.getElementById("finale-icon-chess").addEventListener("click", () => replayEnding(2));
+  document.getElementById("finale-icon-cd").addEventListener("click", () => replayEnding(3));
+  document.getElementById("finale-icon-map").addEventListener("click", () => {
+    stopCakeFlicker();
+    show("map");
+    renderMap();
+  });
+  // "Blow?" is intentionally non-functional for now.
 }
 
-function startConfetti() {
-  const c = document.getElementById("confetti");
-  const ctx = c.getContext("2d");
-  const resize = () => {
-    c.width = c.clientWidth;
-    c.height = c.clientHeight;
-  };
-  resize();
-  window.addEventListener("resize", resize);
-  const colors = ["#e94f8a", "#f0e6f0", "#7a3f8a", "#ffd166", "#06d6a0"];
-  const parts = Array.from({ length: 80 }, () => spawn(c));
-  function spawn(c) {
-    return {
-      x: Math.random() * c.width,
-      y: -20 - Math.random() * c.height,
-      s: 4 + Math.random() * 4,
-      vx: -1 + Math.random() * 2,
-      vy: 1 + Math.random() * 2,
-      col: colors[(Math.random() * colors.length) | 0],
-      r: Math.random() * Math.PI,
-      vr: -0.1 + Math.random() * 0.2,
-    };
-  }
-  function loop() {
-    ctx.clearRect(0, 0, c.width, c.height);
-    parts.forEach((p) => {
-      p.x += p.vx; p.y += p.vy; p.r += p.vr;
-      if (p.y > c.height + 10) Object.assign(p, spawn(c), { y: -10 });
-      ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.r);
-      ctx.fillStyle = p.col;
-      ctx.fillRect(-p.s / 2, -p.s / 2, p.s, p.s);
-      ctx.restore();
+// Replays a completed level's ending from within the finale screen. Unlike
+// a normal win, "Ok"/"Exit" here returns to the finale instead of the map
+// (see returnTarget in the level-end section above).
+function replayEnding(levelId) {
+  const level = LEVELS.find((l) => l.id === levelId);
+  if (!level?.ending) return;
+  const ending = level.ending;
+  returnTarget = "finale";
+
+  if (ending.type === "cutscene") {
+    show("chesscutscene");
+    const canvas = document.getElementById("chess-canvas");
+    createChessCutscene({ canvas }).then((controller) => {
+      activeCutscene = controller;
+      controller.playOnce();
     });
-    requestAnimationFrame(loop);
+  } else if (ending.type === "musicplayer") {
+    // Overlay on top of the (still-visible) finale rather than replacing it.
+    document.querySelector('[data-screen="musicplayer"]').classList.add("active");
+    document.getElementById("musicplayer-ok").textContent = "Exit";
+    initMusicPlayer();
+    startAyaIdle();
+  } else {
+    document.getElementById("levelend-text").textContent = ending.text;
+    show("levelend");
   }
-  loop();
 }
 
 // -------- Touch controls --------
