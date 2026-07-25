@@ -3,7 +3,7 @@ import { startGame } from "/game.js";
 import { LEVELS } from "/levels.js";
 import { createChessCutscene } from "/chess-cutscene.js";
 import { initMusicPlayer, stopMusicPlayer, startAyaIdle, stopAyaIdle } from "/music-player.js";
-import { startCakeFlicker, stopCakeFlicker, drawFinaleIcons } from "/finale.js";
+import { startCakeFlicker, stopCakeFlicker, drawFinaleIcons, blowOutCandle, startConfetti, stopConfetti } from "/finale.js";
 
 const PASSWORD = "wanwan";
 const PROGRESS_KEY = "wanwan-progress";
@@ -464,6 +464,11 @@ let finaleInitialized = false;
 
 function initFinale() {
   startCakeFlicker();
+  stopConfetti();
+
+  const blowBtn = document.getElementById("finale-blow-btn");
+  blowBtn.disabled = false;
+
   if (finaleInitialized) return;
   finaleInitialized = true;
 
@@ -474,10 +479,15 @@ function initFinale() {
   document.getElementById("finale-icon-cd").addEventListener("click", () => replayEnding(3));
   document.getElementById("finale-icon-map").addEventListener("click", () => {
     stopCakeFlicker();
+    stopConfetti();
     show("map");
     renderMap();
   });
-  // "Blow?" is intentionally non-functional for now.
+  blowBtn.addEventListener("click", () => {
+    blowOutCandle();
+    startConfetti();
+    blowBtn.disabled = true;
+  });
 }
 
 // Replays a completed level's ending from within the finale screen. Unlike
