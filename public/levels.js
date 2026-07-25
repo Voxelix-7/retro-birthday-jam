@@ -9,7 +9,7 @@
 export const LEVELS = [
   {
     id: 1,
-    name: "Chapter I",
+    name: "Level I",
     hasContent: true,
     length: 5400,
     winType: "envelope",
