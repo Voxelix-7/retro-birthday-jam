@@ -47,12 +47,10 @@ export const LEVELS = [
   },
   {
     id: 2,
-    name: "Chapter II",
+    name: "Level II",
     hasContent: true,
     length: 5400,
     winType: "chesspiece",
-    // No `slides` — instructions were a level-1-only thing. Levels without
-    // slides skip straight into the (frozen-until-first-move) game.
     ending: {
       type: "cutscene",
       confirm: { text: "You won...play chess?", yes: "YES!" },
@@ -60,7 +58,7 @@ export const LEVELS = [
   },
   {
     id: 3,
-    name: "Chapter III",
+    name: "Level III",
     hasContent: true,
     length: 5400,
     winType: "cd",
@@ -68,15 +66,15 @@ export const LEVELS = [
       type: "musicplayer",
       confirm: {
         text: "You like my tasts in music right? :D",
-        yes: "Yes",
-        no: "No",
+        yes: "OMG YES!",
+        no: "I prefer knife fights",
         noShrinks: true,
       },
     },
   },
   {
     id: 4,
-    name: "Chapter IV",
+    name: "Level IV",
     hasContent: true,
     length: 5400,
     winType: "cake",
