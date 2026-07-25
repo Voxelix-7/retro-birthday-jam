@@ -42,8 +42,7 @@ export const LEVELS = [
     // shrink a little on every click.
     ending: {
       type: "text",
-      // Placeholder — swap in the real message whenever you're ready.
-      text: "PLACEHOLDER TEXT — replace this with the real Chapter I message whenever you're ready.",
+      text: "You won, you must be a true hero to win this kindergarten kids' challenge, you deserve an applause.Each level has its own ending, you reach THE CAKE at the end of the last level so, good luck on winning this EXTREME game.Have fun",
     },
   },
   {
