@@ -11,7 +11,7 @@ const CONFIG = {
   jump: -11,
   playerSpeed: 3.4,
   catBaseSpeed: 2.7,
-  catGain: 0.00012, // px/frame^2, ramps up over time
+  catGain: 0.00004, // px/frame^2, ramps up over time
   levelLength: 5400, // fallback if no level config is passed in
   groundY: 300,
   frameMs: 125,
@@ -83,12 +83,8 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
   const targetX = levelLength - 80;
   const envelope = { baseY: CONFIG.groundY - 90, y: CONFIG.groundY - 90, phase: 0 };
 
-  // Both sheets are 3 equal frames — hardcoded rather than guessed from
-  // pixel width (Math.floor(width/64) previously miscounted boy_run.png as
-  // 4 frames since its frames aren't exactly 64px wide, which made drawSprite
-  // slice across a real frame boundary once per cycle — the "blink" bug).
-  const boyRunFrames = 3;
-  const catRunFrames = 3;
+  const boyRunFrames = Math.max(1, Math.floor(boyRun.width / 64));
+  const catRunFrames = Math.max(1, Math.floor(catRun.width / 64));
   let frame = 0;
   let animT = 0;
   let boyFrame = 0, catFrame = 0;
@@ -165,10 +161,10 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
     if (!done) {
       // cat catch
       if (rectHit(player, cat)) return finish(false);
-      // enemies
-      for (const e of enemies) {
-        if (rectHit(player, e)) return finish(false);
-      }
+      // enemies TEMPORARILY DISABLED
+      //for (const e of enemies) {
+        //if (rectHit(player, e)) return finish(false);
+      //}
       // target (cake, envelope, chess piece, or cd)
       if (player.x + player.w > targetX) return finish(true);
     }
