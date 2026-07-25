@@ -873,7 +873,7 @@ html, body {
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-top: 28px;
+  margin-top: 56px;
 }
 
 .finale-icon-btn {
@@ -919,7 +919,7 @@ html, body {
   height: 220px;
   background-image: url("/sprites/cake_animation.png");
   background-repeat: no-repeat;
-  background-size: auto 100%; /* 2 frames */
+  background-size: 400% 100%; /* sheet is 4 equal cells wide (only 2 have art) */
   background-position-x: 0%;
   image-rendering: pixelated;
 }
