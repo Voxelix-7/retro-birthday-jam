@@ -5,16 +5,12 @@
 
 import { drawEnvelope, drawChessPiece } from "/game.js";
 
-// -------- Cake flicker (2-frame candle loop) --------
-// cake_animation.png is 6400x1600 — that's 4 equal 1600x1600 cells (only
-// cells 0 and 1 actually have art; 2 and 3 are blank, reserved for later).
-// Same CSS sprite trick as Aya's idle loop, but sized for the sheet's real
-// cell count (4), not just the 2 we currently animate through — otherwise
-// the browser squeezes all 4 cells into a 2-cell-wide space and everything
-// looks horizontally squished.
+// -------- Cake flicker (4-frame candle loop) --------
+// cake_animation.png is 6400x1600 — 4 equal 1600x1600 cells, all 4 with art,
+// all 4 used in the loop. Same CSS sprite trick as Aya's idle loop.
 const CAKE_SHEET_CELLS = 4;
-const CAKE_FRAMES = [0, 1]; // which cell indices to actually cycle through
-const CAKE_FRAME_DURATIONS = [700, 700]; // no timing was specified — a simple even flicker
+const CAKE_FRAMES = [0, 1, 2, 3];
+const CAKE_FRAME_DURATIONS = [600, 600, 600, 600]; // even timing, per spec
 
 const CAKE_SHEET_SRC = "/sprites/cake_animation.png";
 const CAKE_BLOWN_SRC = "/sprites/cake_blown.png";
