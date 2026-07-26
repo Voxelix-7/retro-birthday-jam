@@ -493,6 +493,12 @@ function initFinale() {
 // Replays a completed level's ending from within the finale screen. Unlike
 // a normal win, "Ok"/"Exit" here returns to the finale instead of the map
 // (see returnTarget in the level-end section above).
+// Shown only when replaying Chapter I's ending from the finale screen — kept
+// separate from level 1's own ending.text (used for the normal, first-time
+// win) since the finale shouldn't repeat that exact message.
+const FINALE_ENVELOPE_TEXT =
+  "PLACEHOLDER — swap in the real finale envelope message whenever you're ready.";
+
 function replayEnding(levelId) {
   const level = LEVELS.find((l) => l.id === levelId);
   if (!level?.ending) return;
@@ -513,7 +519,8 @@ function replayEnding(levelId) {
     initMusicPlayer();
     startAyaIdle();
   } else {
-    document.getElementById("levelend-text").textContent = ending.text;
+    document.getElementById("levelend-text").textContent =
+      levelId === 1 ? FINALE_ENVELOPE_TEXT : ending.text;
     show("levelend");
   }
 }
