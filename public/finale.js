@@ -5,20 +5,26 @@
 
 import { drawEnvelope, drawChessPiece } from "/game.js";
 
-// -------- Cake flicker (4-frame candle loop) --------
-// cake_animation.png is 6400x1600 — 4 equal 1600x1600 cells, all 4 with art,
-// all 4 used in the loop. Same CSS sprite trick as Aya's idle loop.
-const CAKE_SHEET_CELLS = 4;
-const CAKE_FRAMES = [0, 1, 2, 3];
-const CAKE_FRAME_DURATIONS = [600, 600, 600, 600]; // even timing, per spec
+// -------- Cake animation --------
+// Idle loop: cake_idle.png is 384x128 — 3 equal 128x128 frames, looping
+// continuously at 250ms/frame.
+const CAKE_IDLE_SRC = "/sprites/cake_idle.png";
+const CAKE_IDLE_CELLS = 3;
+const CAKE_IDLE_FRAME_MS = 250;
 
-const CAKE_SHEET_SRC = "/sprites/cake_animation.png";
-const CAKE_BLOWN_SRC = "/sprites/cake_blown.png";
+// Blow animation: cake_blow.png is 256x128 — 2 equal 128x128 frames, played
+// ONCE then frozen on the last frame (same one-shot/freeze pattern used by
+// the bat intro sprite: show frame 1, wait, show frame 2, stop — no loop).
+const CAKE_BLOW_SRC = "/sprites/cake_blow.png";
+const CAKE_BLOW_CELLS = 2;
+const CAKE_BLOW_FRAME_MS = 300;
 
 let cakeTimer = null;
 
-function cellPositionX(cellIndex) {
-  return `${(cellIndex * 100) / (CAKE_SHEET_CELLS - 1)}%`;
+// Both sheets use equal-width cells, so this same percentage formula works
+// for either one — just pass its own total cell count.
+function cellPositionX(cellIndex, totalCells) {
+  return totalCells > 1 ? `${(cellIndex * 100) / (totalCells - 1)}%` : "0%";
 }
 
 export function startCakeFlicker() {
@@ -26,18 +32,18 @@ export function startCakeFlicker() {
   const el = document.getElementById("finale-cake");
   if (!el) return;
 
-  // Re-assert the animated sheet in case a previous visit blew the candle
-  // out (blowOutCandle swaps these to the static no-candle image).
-  el.style.backgroundImage = `url("${CAKE_SHEET_SRC}")`;
-  el.style.backgroundSize = "400% 100%";
+  // Re-assert the idle sheet in case a previous visit blew the candle out
+  // (blowOutCandle swaps these to the 2-frame blow sheet).
+  el.style.backgroundImage = `url("${CAKE_IDLE_SRC}")`;
+  el.style.backgroundSize = `${CAKE_IDLE_CELLS * 100}% 100%`;
 
   let i = 0;
   const step = () => {
-    el.style.backgroundPositionX = cellPositionX(CAKE_FRAMES[i]);
+    el.style.backgroundPositionX = cellPositionX(i, CAKE_IDLE_CELLS);
     cakeTimer = setTimeout(() => {
-      i = (i + 1) % CAKE_FRAMES.length;
+      i = (i + 1) % CAKE_IDLE_CELLS;
       step();
-    }, CAKE_FRAME_DURATIONS[i]);
+    }, CAKE_IDLE_FRAME_MS);
   };
   step();
 }
@@ -47,15 +53,22 @@ export function stopCakeFlicker() {
   cakeTimer = null;
 }
 
-// Swaps the animated candle sheet for the static no-candle image (same
-// 1600x1600 dimensions as one cell, so it drops in with no layout shift).
+// Swaps in the 2-frame blow sheet, plays it once, then freezes on the last
+// frame. Both sheets render at identical on-screen dimensions (set by
+// .finale-cake in CSS), so there's no visual size change on swap.
 export function blowOutCandle() {
   stopCakeFlicker();
   const el = document.getElementById("finale-cake");
   if (!el) return;
-  el.style.backgroundImage = `url("${CAKE_BLOWN_SRC}")`;
-  el.style.backgroundSize = "100% 100%";
-  el.style.backgroundPositionX = "0%";
+
+  el.style.backgroundImage = `url("${CAKE_BLOW_SRC}")`;
+  el.style.backgroundSize = `${CAKE_BLOW_CELLS * 100}% 100%`;
+  el.style.backgroundPositionX = cellPositionX(0, CAKE_BLOW_CELLS); // frame 1
+
+  cakeTimer = setTimeout(() => {
+    el.style.backgroundPositionX = cellPositionX(1, CAKE_BLOW_CELLS); // frame 2, freeze here
+    cakeTimer = null;
+  }, CAKE_BLOW_FRAME_MS);
 }
 
 // -------- Confetti (starts when the candle is blown out) --------
