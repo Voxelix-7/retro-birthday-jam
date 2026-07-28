@@ -162,9 +162,9 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
       // cat catch
       if (rectHit(player, cat)) return finish(false);
       // enemies TEMPORARILY DISABLED
-      //for (const e of enemies) {
-        //if (rectHit(player, e)) return finish(false);
-      //}
+      for (const e of enemies) {
+        if (rectHit(player, e)) return finish(false);
+      }
       // target (cake, envelope, chess piece, or cd)
       if (player.x + player.w > targetX) return finish(true);
     }
