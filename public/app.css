@@ -629,10 +629,6 @@ html, body {
 .screen[data-screen="musicplayer"] {
   background: #000;
   /* .screen already centers its content via flex (align-items/justify-content) */
-  /* Needs to render above the finale screen for the "replay from finale"
-     case, where both screens are briefly active at once (finale stays
-     mounted underneath so "Exit" can reveal it instantly). */
-  z-index: 10;
 }
 
 /* One container holds everything (sprite, player, Ok button) and carries the
@@ -835,6 +831,67 @@ html, body {
     bottom: 18px;
     transform: translateX(-50%);
   }
+}
+
+/* FLOATING PLAYER WINDOW (finale's detached CD-icon player) */
+.floating-player {
+  position: fixed;
+  z-index: 60;
+  width: min(88vw, 300px);
+  filter: drop-shadow(6px 6px 0 rgba(0, 0, 0, 0.5));
+}
+.floating-player.hidden { display: none; }
+
+.floating-player-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 8px 7px 12px;
+  background: #2d1a2e;
+  border: 3px solid var(--text);
+  border-bottom: none;
+  border-radius: 12px 12px 0 0;
+  cursor: grab;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.floating-player-titlebar:active { cursor: grabbing; }
+
+.floating-player-title {
+  font-size: 9px;
+  color: var(--text);
+  letter-spacing: 0.5px;
+}
+
+.floating-player-close {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: transparent;
+  border: 2px solid var(--text);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 10px;
+  line-height: 1;
+  cursor: pointer;
+}
+.floating-player-close:hover { background: rgba(240, 230, 240, 0.12); }
+
+.floating-player-body .player-panel {
+  position: static;
+  right: auto;
+  top: auto;
+  transform: none;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  max-height: 60vh;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  box-shadow: none;
+  animation: none;
 }
 
 /* FINALE */
