@@ -388,6 +388,7 @@ function fadeToEnding() {
       });
     } else if (ending.type === "musicplayer") {
       show("musicplayer");
+      mountPlayerPanel(document.querySelector(".musicplayer-container"));
       initMusicPlayer();
       startAyaIdle();
     } else if (ending.type === "finale") {
@@ -480,6 +481,8 @@ function initFinale() {
   document.getElementById("finale-icon-map").addEventListener("click", () => {
     stopCakeFlicker();
     stopConfetti();
+    stopMusicPlayer();
+    document.getElementById("finale-player-window").classList.add("hidden");
     show("map");
     renderMap();
   });
@@ -503,9 +506,9 @@ function replayEnding(levelId) {
   const level = LEVELS.find((l) => l.id === levelId);
   if (!level?.ending) return;
   const ending = level.ending;
-  returnTarget = "finale";
 
   if (ending.type === "cutscene") {
+    returnTarget = "finale";
     show("chesscutscene");
     const canvas = document.getElementById("chess-canvas");
     createChessCutscene({ canvas }).then((controller) => {
@@ -513,17 +516,97 @@ function replayEnding(levelId) {
       controller.playOnce();
     });
   } else if (ending.type === "musicplayer") {
-    // Overlay on top of the (still-visible) finale rather than replacing it.
-    document.querySelector('[data-screen="musicplayer"]').classList.add("active");
-    document.getElementById("musicplayer-ok").textContent = "Exit";
-    initMusicPlayer();
-    startAyaIdle();
+    // No full-screen takeover here — just the player itself, in a small
+    // draggable window over the (still fully visible) finale screen.
+    toggleFinalePlayerWindow();
   } else {
+    returnTarget = "finale";
     document.getElementById("levelend-text").textContent =
       levelId === 1 ? FINALE_ENVELOPE_TEXT : ending.text;
     show("levelend");
   }
 }
+
+// -------- Finale's detachable music player window --------
+// Reparents the single shared #player-panel (audio element stays put and
+// keeps playing regardless of where the panel visually lives) into whatever
+// container currently needs it — the full-screen musicplayer-container for
+// a normal level-3 win, or this floating window when opened from finale.
+function mountPlayerPanel(container) {
+  const panel = document.getElementById("player-panel");
+  if (panel && panel.parentElement !== container) {
+    container.appendChild(panel);
+  }
+}
+
+let finalePlayerPositioned = false;
+
+function toggleFinalePlayerWindow() {
+  const win = document.getElementById("finale-player-window");
+  const isOpen = !win.classList.contains("hidden");
+
+  if (isOpen) {
+    // Closing never touches playback — the audio element isn't part of what
+    // gets hidden, so it just keeps playing.
+    win.classList.add("hidden");
+    return;
+  }
+
+  mountPlayerPanel(document.getElementById("finale-player-body"));
+  win.classList.remove("hidden");
+  initMusicPlayer();
+
+  if (!finalePlayerPositioned) {
+    // First open only — start it roughly centered near the top. After this,
+    // its position is whatever the player dragged it to.
+    const rect = win.getBoundingClientRect();
+    win.style.left = `${Math.max(8, (window.innerWidth - rect.width) / 2)}px`;
+    win.style.top = `${Math.max(8, window.innerHeight * 0.15)}px`;
+    finalePlayerPositioned = true;
+  }
+}
+
+document.getElementById("finale-player-close").addEventListener("click", () => {
+  document.getElementById("finale-player-window").classList.add("hidden");
+});
+
+// Drag support for the floating player window — Pointer Events cover mouse,
+// touch, and pen with the same code, so no separate touch handling needed.
+(function makeFinalePlayerDraggable() {
+  const win = document.getElementById("finale-player-window");
+  const handle = document.getElementById("finale-player-titlebar");
+  let dragging = false;
+  let startX, startY, startLeft, startTop;
+
+  handle.addEventListener("pointerdown", (e) => {
+    dragging = true;
+    handle.setPointerCapture(e.pointerId);
+    const rect = win.getBoundingClientRect();
+    startX = e.clientX;
+    startY = e.clientY;
+    startLeft = rect.left;
+    startTop = rect.top;
+  });
+
+  handle.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    const rect = win.getBoundingClientRect();
+    const maxLeft = Math.max(0, window.innerWidth - rect.width);
+    const maxTop = Math.max(0, window.innerHeight - rect.height);
+    const newLeft = Math.min(maxLeft, Math.max(0, startLeft + (e.clientX - startX)));
+    const newTop = Math.min(maxTop, Math.max(0, startTop + (e.clientY - startY)));
+    win.style.left = `${newLeft}px`;
+    win.style.top = `${newTop}px`;
+  });
+
+  const endDrag = (e) => {
+    if (!dragging) return;
+    dragging = false;
+    if (handle.hasPointerCapture(e.pointerId)) handle.releasePointerCapture(e.pointerId);
+  };
+  handle.addEventListener("pointerup", endDrag);
+  handle.addEventListener("pointercancel", endDrag);
+})();
 
 // -------- Touch controls --------
 document.querySelectorAll(".tbtn").forEach((b) => {
