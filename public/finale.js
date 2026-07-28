@@ -19,6 +19,15 @@ const CAKE_BLOW_SRC = "/sprites/cake_blow.png";
 const CAKE_BLOW_CELLS = 2;
 const CAKE_BLOW_FRAME_MS = 300;
 
+// Kick off both loads the moment this module is imported (page load time,
+// via app.js's static import) — long before the player could ever actually
+// reach the finale screen. Without this, switching background-image to a
+// not-yet-fetched file causes a visible blink while it downloads/decodes.
+[CAKE_IDLE_SRC, CAKE_BLOW_SRC].forEach((src) => {
+  const img = new Image();
+  img.src = src;
+});
+
 let cakeTimer = null;
 
 // Both sheets use equal-width cells, so this same percentage formula works
