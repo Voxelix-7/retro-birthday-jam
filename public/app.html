@@ -135,7 +135,7 @@
       <section class="screen" data-screen="musicplayer">
         <div class="musicplayer-container">
           <div class="aya-sprite" id="aya-sprite"></div>
-          <div class="player-panel">
+          <div class="player-panel" id="player-panel">
             <img class="player-art" src="/sprites/album_art.png" alt="Album art" />
             <p class="player-tracktitle" id="player-tracktitle"></p>
             <div class="player-time">
@@ -183,6 +183,17 @@
           </div>
         </div>
       </section>
+    </div>
+
+    <!-- Draggable floating player window — used only when opening the music
+         player from the finale's CD icon (no background/spritesheet, just
+         the player itself, reparented in from #player-panel above). -->
+    <div id="finale-player-window" class="floating-player hidden">
+      <div class="floating-player-titlebar" id="finale-player-titlebar">
+        <span class="floating-player-title">Now Playing</span>
+        <button class="floating-player-close" id="finale-player-close" aria-label="Close player">✕</button>
+      </div>
+      <div class="floating-player-body" id="finale-player-body"></div>
     </div>
 
     <script src="/app.js" type="module"></script>
