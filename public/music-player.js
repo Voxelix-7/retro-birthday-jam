@@ -90,9 +90,11 @@ export function initMusicPlayer() {
   tracklistEl = document.getElementById("player-tracklist");
 
   if (initialized) {
-    // Re-entering the screen on a later playthrough — just reset to track 1,
-    // paused, rather than re-attaching every listener again.
-    loadTrack(0);
+    // Already wired up — DOM refs above just got re-acquired in case the
+    // panel was reparented (e.g. moved into/out of the finale's floating
+    // window). Deliberately NOT resetting to track 0 here: the audio keeps
+    // playing regardless of where the panel currently lives, and reopening
+    // the player should show whatever's actually still playing, not restart.
     return;
   }
   initialized = true;
