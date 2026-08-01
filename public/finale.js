@@ -6,34 +6,31 @@
 import { drawEnvelope, drawChessPiece } from "/game.js";
 
 // -------- Cake animation --------
-// Idle loop: cake_idle.png is 384x128 — 3 equal 128x128 frames, looping
-// continuously at 250ms/frame.
-const CAKE_IDLE_SRC = "/sprites/cake_idle.png";
-const CAKE_IDLE_CELLS = 3;
+// One sheet, one row: cake_sheet.png is 640x128 — 5 equal 128x128 frames.
+// Frames 0-2 are the idle loop (looped until "Blow?" is clicked); frames 3-4
+// are the blow animation (played once, then frozen on frame 4). Everything
+// stays on this single image the whole time — the background-image never
+// changes, only background-position-x moves within it. Same technique as
+// every other multi-frame sprite in this project (Aya's idle loop, the run
+// cycles, etc.) — one axis, one formula, nothing to swap or preload.
+const CAKE_SRC = "/sprites/cake_sheet.png";
+const CAKE_TOTAL_CELLS = 5;
+
+const CAKE_IDLE_FRAMES = [0, 1, 2];
 const CAKE_IDLE_FRAME_MS = 250;
 
-// Blow animation: cake_blow.png is 256x128 — 2 equal 128x128 frames, played
-// ONCE then frozen on the last frame (same one-shot/freeze pattern used by
-// the bat intro sprite: show frame 1, wait, show frame 2, stop — no loop).
-const CAKE_BLOW_SRC = "/sprites/cake_blow.png";
-const CAKE_BLOW_CELLS = 2;
+const CAKE_BLOW_FRAMES = [3, 4];
 const CAKE_BLOW_FRAME_MS = 300;
-
-// Kick off both loads the moment this module is imported (page load time,
-// via app.js's static import) — long before the player could ever actually
-// reach the finale screen. Without this, switching background-image to a
-// not-yet-fetched file causes a visible blink while it downloads/decodes.
-[CAKE_IDLE_SRC, CAKE_BLOW_SRC].forEach((src) => {
-  const img = new Image();
-  img.src = src;
-});
 
 let cakeTimer = null;
 
-// Both sheets use equal-width cells, so this same percentage formula works
-// for either one — just pass its own total cell count.
-function cellPositionX(cellIndex, totalCells) {
-  return totalCells > 1 ? `${(cellIndex * 100) / (totalCells - 1)}%` : "0%";
+function cellPositionX(cellIndex) {
+  return `${(cellIndex * 100) / (CAKE_TOTAL_CELLS - 1)}%`;
+}
+
+function setCakeBackground(el) {
+  el.style.backgroundImage = `url("${CAKE_SRC}")`;
+  el.style.backgroundSize = `${CAKE_TOTAL_CELLS * 100}% 100%`;
 }
 
 export function startCakeFlicker() {
@@ -41,16 +38,13 @@ export function startCakeFlicker() {
   const el = document.getElementById("finale-cake");
   if (!el) return;
 
-  // Re-assert the idle sheet in case a previous visit blew the candle out
-  // (blowOutCandle swaps these to the 2-frame blow sheet).
-  el.style.backgroundImage = `url("${CAKE_IDLE_SRC}")`;
-  el.style.backgroundSize = `${CAKE_IDLE_CELLS * 100}% 100%`;
+  setCakeBackground(el);
 
   let i = 0;
   const step = () => {
-    el.style.backgroundPositionX = cellPositionX(i, CAKE_IDLE_CELLS);
+    el.style.backgroundPositionX = cellPositionX(CAKE_IDLE_FRAMES[i]);
     cakeTimer = setTimeout(() => {
-      i = (i + 1) % CAKE_IDLE_CELLS;
+      i = (i + 1) % CAKE_IDLE_FRAMES.length;
       step();
     }, CAKE_IDLE_FRAME_MS);
   };
@@ -62,20 +56,19 @@ export function stopCakeFlicker() {
   cakeTimer = null;
 }
 
-// Swaps in the 2-frame blow sheet, plays it once, then freezes on the last
-// frame. Both sheets render at identical on-screen dimensions (set by
-// .finale-cake in CSS), so there's no visual size change on swap.
+// Plays the 2-frame blow animation once, then freezes on the last frame —
+// same one-shot/freeze pattern as the bat intro sprite. No image swap here
+// at all, just moving further along the same already-loaded sheet.
 export function blowOutCandle() {
   stopCakeFlicker();
   const el = document.getElementById("finale-cake");
   if (!el) return;
 
-  el.style.backgroundImage = `url("${CAKE_BLOW_SRC}")`;
-  el.style.backgroundSize = `${CAKE_BLOW_CELLS * 100}% 100%`;
-  el.style.backgroundPositionX = cellPositionX(0, CAKE_BLOW_CELLS); // frame 1
+  setCakeBackground(el);
+  el.style.backgroundPositionX = cellPositionX(CAKE_BLOW_FRAMES[0]);
 
   cakeTimer = setTimeout(() => {
-    el.style.backgroundPositionX = cellPositionX(1, CAKE_BLOW_CELLS); // frame 2, freeze here
+    el.style.backgroundPositionX = cellPositionX(CAKE_BLOW_FRAMES[1]); // freeze here, forever
     cakeTimer = null;
   }, CAKE_BLOW_FRAME_MS);
 }
