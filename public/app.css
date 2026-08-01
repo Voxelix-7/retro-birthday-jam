@@ -589,9 +589,24 @@ html, body {
 
 /* CHESS CUTSCENE */
 .screen[data-screen="chesscutscene"] {
-  background: #000;
+  background: #fff;
   flex-direction: column;
   gap: 24px;
+}
+
+/* The default ghost-outline/orange-btn colors assume a dark backdrop —
+   override just here so "Again?"/"Ok" stay readable on the white background. */
+.screen[data-screen="chesscutscene"] .ghost-outline {
+  color: #2d1a2e;
+  border-color: #2d1a2e;
+}
+.screen[data-screen="chesscutscene"] .ghost-outline:hover {
+  background: rgba(45, 26, 46, 0.08);
+}
+.screen[data-screen="chesscutscene"] .orange-btn {
+  background: #2d1a2e;
+  color: #f0e6f0;
+  border-color: #2d1a2e;
 }
 
 .chess-canvas {
@@ -995,9 +1010,9 @@ html, body {
 .finale-cake {
   width: 300px;
   height: 300px;
-  background-image: url("/sprites/cake_idle.png");
+  background-image: url("/sprites/cake_sheet.png");
   background-repeat: no-repeat;
-  background-size: 300% 100%; /* idle sheet: 3 equal 128x128 cells */
+  background-size: 500% 100%; /* one sheet: 5 equal 128x128 cells */
   background-position-x: 0%;
   image-rendering: pixelated;
 }
