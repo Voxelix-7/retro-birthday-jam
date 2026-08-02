@@ -379,7 +379,13 @@ function fadeToEnding() {
   gameFade.classList.add("active");
   setTimeout(() => {
     completeLevel(currentLevel.id);
-    if (ending.type === "cutscene") {
+    if (ending.skipOnWin) {
+      // This level's `ending` config exists only so the finale screen can
+      // look up how to replay it later (e.g. level 2's chess cutscene) — a
+      // normal win just goes straight back to the map, no ending screen.
+      show("map");
+      renderMap();
+    } else if (ending.type === "cutscene") {
       show("chesscutscene");
       const canvas = document.getElementById("chess-canvas");
       createChessCutscene({ canvas }).then((controller) => {
@@ -407,14 +413,17 @@ function backToMapFromEnding() {
     activeCutscene.stop();
     activeCutscene = null;
   }
-  stopAyaIdle();
   document.getElementById("musicplayer-ok").textContent = "Ok";
 
   if (returnTarget === "finale") {
     returnTarget = "map";
     show("finale");
   } else {
+    // Only stop the music / Aya's idle loop when we're actually leaving for
+    // the map — returning to the finale screen (e.g. after closing the
+    // envelope or chess replay) should let any playing track keep going.
     stopMusicPlayer();
+    stopAyaIdle();
     show("map");
     renderMap();
   }
