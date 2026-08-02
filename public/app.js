@@ -162,6 +162,11 @@ function enterLevel(id) {
     return;
   }
   currentLevel = level;
+
+  // Only level 4's HUD shows a target label ("Cake") — every other level
+  // leaves the right side of the progress bar blank.
+  document.getElementById("hud-target-label").textContent = level.id === 4 ? "Cake" : "";
+
   if (level.slides && level.slides.length) {
     show("intro");
     initIntro(level);
@@ -252,11 +257,6 @@ function initIntro(level) {
       updateIntroSlide();
     });
   });
-
-  // Set the HUD's target label to match this level's win condition.
-  const targetLabel = document.getElementById("hud-target-label");
-  const TARGET_LABELS = { envelope: "Envelope", chesspiece: "Chess Piece", cd: "CD", cake: "Cake" };
-  targetLabel.textContent = TARGET_LABELS[level.winType] || "Cake";
 
   updateIntroSlide();
 }
