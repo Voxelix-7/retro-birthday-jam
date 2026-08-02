@@ -640,45 +640,37 @@ html, body {
   transition: transform 150ms ease;
 }
 
-/* MUSIC PLAYER */
+/* MUSIC PLAYER (level 3 ending) */
 .screen[data-screen="musicplayer"] {
   background: #000;
   /* .screen already centers its content via flex (align-items/justify-content) */
 }
 
-/* One container holds everything (sprite, player, Ok button) and carries the
-   background image. It's locked to the image's exact aspect ratio (1248:696)
-   so background-size can safely be 100% 100% with zero distortion AND zero
-   letterboxing — which matters because Aya/player/Ok below are positioned as
-   percentages of this box, and that only lines up with the visible art if
-   this box's shape always matches the art's shape exactly.
-   The width formula picks whichever of (available width) or (available
-   height converted through the aspect ratio) is smaller, so the box always
-   fits fully within the screen with a small margin, on any viewport. */
+/* Plain full-size positioning context for the player panel (right side) and
+   the Ok/Aya group (centered, lower part of the screen) — no background art
+   anymore, just black, so this only needs to fill the screen. */
 .musicplayer-container {
   position: relative;
-  aspect-ratio: 1248 / 696;
-  width: min(calc(100vw - 28px), calc((100vh - 28px) * 1248 / 696));
-  max-width: 100%;
-  background-color: #000;
-  background-image: url("/sprites/musicplayer-bg.jpg");
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-  border-radius: 10px;
-  overflow: hidden;
+  width: 100%;
+  height: 100%;
 }
 
+/* Tiny, animated Aya perched on top of the Ok button. She's a flex child of
+   .musicplayer-ok-wrap (below), stacked directly above the button — the
+   negative margin-bottom is what pulls her down to visually overlap/"sit on"
+   the button. TUNE HERE if you want her bigger/smaller or sitting more/less
+   on top of the button: adjust `width` and `margin-bottom`. */
 .aya-sprite {
-  position: absolute;
-  left: 3%;
-  bottom: 4%;
-  width: 20%;
+  width: 64px;
   aspect-ratio: 450 / 413;
   background-image: url("/sprites/aya_grass.png");
   background-repeat: no-repeat;
   background-size: 600% 100%; /* 6 frames */
   background-position-x: 0%;
   image-rendering: pixelated;
+  margin-bottom: -14px;
+  position: relative;
+  z-index: 1;
 }
 
 .player-panel {
@@ -821,26 +813,29 @@ html, body {
   opacity: 1;
 }
 
-.musicplayer-ok {
+/* Ok button + Aya, grouped and centered in the lower part of the screen. */
+.musicplayer-ok-wrap {
   position: absolute;
   left: 50%;
-  bottom: 3%;
+  bottom: 6%;
   transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   animation: pop 500ms ease;
 }
 
 @media (max-width: 640px) {
-  .aya-sprite { display: none; }
   .player-panel {
     position: fixed;
     left: 50%;
-    top: 50%;
+    top: 42%;
     right: auto;
     transform: translate(-50%, -50%);
     width: min(86vw, 300px);
-    max-height: 78vh;
+    max-height: 62vh;
   }
-  .musicplayer-ok {
+  .musicplayer-ok-wrap {
     position: fixed;
     left: 50%;
     bottom: 18px;
