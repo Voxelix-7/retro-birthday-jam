@@ -122,7 +122,9 @@
         </div>
       </section>
 
-      <!-- CHESS CUTSCENE (level 2 ending — plays once, "Again?" replays it) -->
+      <!-- CHESS CUTSCENE (only reachable via the finale's chess-piece icon
+           replay now — no longer shown automatically after winning level 2.
+           Plays once, "Again?" replays it.) -->
       <section class="screen" data-screen="chesscutscene">
         <canvas id="chess-canvas" class="chess-canvas"></canvas>
         <div class="chesscutscene-actions">
@@ -131,10 +133,11 @@
         </div>
       </section>
 
-      <!-- MUSIC PLAYER (level 3 ending — real playable album UI) -->
+      <!-- MUSIC PLAYER (level 3 ending — real playable album UI).
+           Plain black background: just the player panel on the right, and
+           Aya sitting tiny on top of the Ok button, centered lower screen. -->
       <section class="screen" data-screen="musicplayer">
         <div class="musicplayer-container">
-          <div class="aya-sprite" id="aya-sprite"></div>
           <div class="player-panel" id="player-panel">
             <img class="player-art" src="/sprites/album_art.png" alt="Album art" />
             <p class="player-tracktitle" id="player-tracktitle"></p>
@@ -152,7 +155,10 @@
             </div>
             <ul class="player-tracklist" id="player-tracklist"></ul>
           </div>
-          <button id="musicplayer-ok" class="btn orange-btn musicplayer-ok">Ok</button>
+          <div class="musicplayer-ok-wrap">
+            <div class="aya-sprite" id="aya-sprite"></div>
+            <button id="musicplayer-ok" class="btn orange-btn musicplayer-ok">Ok</button>
+          </div>
         </div>
         <audio id="player-audio"></audio>
       </section>
