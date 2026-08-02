@@ -407,7 +407,6 @@ function backToMapFromEnding() {
     activeCutscene.stop();
     activeCutscene = null;
   }
-  stopMusicPlayer();
   stopAyaIdle();
   document.getElementById("musicplayer-ok").textContent = "Ok";
 
@@ -415,6 +414,7 @@ function backToMapFromEnding() {
     returnTarget = "map";
     show("finale");
   } else {
+    stopMusicPlayer();
     show("map");
     renderMap();
   }
