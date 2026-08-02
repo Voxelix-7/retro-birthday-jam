@@ -51,9 +51,15 @@ export const LEVELS = [
     hasContent: true,
     length: 5400,
     winType: "chesspiece",
+    // The chess cutscene is no longer shown as a reward for beating this
+    // level — it now only plays when replayed from the finale screen's
+    // chess-piece icon (see replayEnding() in app.js, which still looks up
+    // `ending.type === "cutscene"` on this level to know what to play).
+    // `skipOnWin: true` tells fadeToEnding() in app.js to skip straight back
+    // to the map on a normal win instead of showing the cutscene.
     ending: {
       type: "cutscene",
-      confirm: { text: "You won...play chess?", yes: "YES!" },
+      skipOnWin: true,
     },
   },
   {
