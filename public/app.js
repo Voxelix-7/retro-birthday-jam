@@ -5,6 +5,65 @@ import { createChessCutscene } from "/chess-cutscene.js";
 import { initMusicPlayer, stopMusicPlayer, startAyaIdle, stopAyaIdle } from "/music-player.js";
 import { startCakeFlicker, stopCakeFlicker, drawFinaleIcons, blowOutCandle, startConfetti, stopConfetti } from "/finale.js";
 
+// -------- PWA: offline caching --------
+// Registering here (rather than depending on it happening elsewhere) is
+// safe even if something else already registers it too — the browser
+// dedupes by (script URL, scope), so this never creates a second worker.
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {
+      // Offline support just won't be available this session — nothing
+      // else in the game depends on it.
+    });
+  });
+}
+
+// -------- PWA: immersive fullscreen + landscape --------
+// Both the Fullscreen API and the Screen Orientation lock API only work the
+// first time when called from within a real user gesture, so this is
+// invoked from the earliest genuine tap in the flow (password submit)
+// rather than on load. Calling it again when already fullscreen/locked is
+// a harmless no-op either way.
+async function enterImmersiveMode() {
+  const root = document.documentElement;
+  try {
+    if (!document.fullscreenElement) {
+      if (root.requestFullscreen) {
+        await root.requestFullscreen({ navigationUI: "hide" });
+      } else if (root.webkitRequestFullscreen) {
+        // Older Android WebViews / Chrome versions.
+        root.webkitRequestFullscreen();
+      }
+    }
+  } catch {
+    // Not available/allowed right now — the rotate-overlay + responsive
+    // layout still keep the game fully playable with browser chrome visible.
+  }
+  try {
+    await screen.orientation?.lock?.("landscape");
+  } catch {
+    // Not supported on this browser/device — the manifest's own
+    // orientation lock (for the installed app) and the CSS rotate-overlay
+    // cover this case instead.
+  }
+}
+
+// If fullscreen/lock drops out on its own (app switch, keyboard popping up,
+// other OS lifecycle events) try to restore it as soon as the app is
+// foregrounded again. This can only succeed if the browser still treats it
+// as tied to a recent user action, so it's a best-effort restore rather
+// than a guarantee — but it costs nothing to attempt.
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && !document.fullscreenElement) {
+    enterImmersiveMode();
+  }
+});
+document.addEventListener("fullscreenchange", () => {
+  if (!document.fullscreenElement) {
+    enterImmersiveMode();
+  }
+});
+
 const PASSWORD = "wanwan";
 const PROGRESS_KEY = "wanwan-progress";
 
@@ -56,6 +115,9 @@ form.addEventListener("submit", (e) => {
   const val = input.value.trim().toLowerCase();
   if (val === PASSWORD) {
     hint.textContent = "";
+    // Earliest genuine user gesture in the whole app — the right place to
+    // ask for fullscreen + landscape lock.
+    enterImmersiveMode();
     show("bat");
     playBatIntro();
   } else {
