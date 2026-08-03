@@ -7,6 +7,37 @@
 
 * { box-sizing: border-box; }
 
+/* PWA touch/gesture chrome removal — makes taps feel native instead of like
+   a webpage: no blue tap-highlight flash, no text/image selection or
+   long-press "save image"/callout menus, no double-tap-to-zoom delay, no
+   pull-to-refresh/rubber-band scrolling. The password input is explicitly
+   exempted below since it still needs normal text selection/editing. */
+html, body {
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+* {
+  touch-action: manipulation;
+}
+
+body, button, canvas, img, .slide-text, .levelend-text, .player-tracktitle {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+img, canvas {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
+#password-input {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -32,7 +63,12 @@ html, body {
   display: none;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  /* max(...) keeps the original 16px on ordinary screens and only grows on
+     notches/gesture-bar cutouts (env() resolves to 0 everywhere else), so
+     nothing is cropped or sits under a cutout without changing the layout
+     anywhere that doesn't need it. */
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
   opacity: 0;
   transition: opacity 400ms ease;
   background: var(--panel);
@@ -1040,4 +1076,49 @@ html, body {
   .gameover-panel .blink-sprite { width: 140px; height: 140px; background-size: 280px 140px; }
   .map-title { font-size: 12px; }
   .level-node-frame { width: 60px; height: 60px; font-size: 16px; }
+}
+
+/* ROTATE-DEVICE OVERLAY (fallback for browsers/devices where the landscape
+   lock isn't supported or doesn't succeed) — pure CSS, no JS detection
+   needed: shown any time the physical screen is in portrait, hidden the
+   instant it isn't, so it can never drift out of sync with reality. */
+.rotate-overlay {
+  display: none;
+}
+
+@media (orientation: portrait) {
+  .rotate-overlay {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    color: var(--text);
+    text-align: center;
+    padding: 24px;
+  }
+
+  .rotate-overlay-content { max-width: 320px; }
+
+  .rotate-icon {
+    width: 64px;
+    height: 44px;
+    margin: 0 auto 20px;
+    border: 4px solid var(--text);
+    border-radius: 6px;
+    animation: rotateHint 1.8s ease-in-out infinite;
+  }
+
+  .rotate-overlay p {
+    font-size: 11px;
+    line-height: 1.8;
+    margin: 0;
+  }
+
+  @keyframes rotateHint {
+    0%, 100% { transform: rotate(0deg); }
+    50%      { transform: rotate(90deg); }
+  }
 }
