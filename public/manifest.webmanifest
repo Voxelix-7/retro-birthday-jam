@@ -3,8 +3,8 @@
   "short_name": "WanWan",
   "start_url": "/app.html",
   "scope": "/",
-  "display": "standalone",
-  "orientation": "any",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "landscape",
   "background_color": "#000000",
   "theme_color": "#2d1a2e",
   "icons": [
