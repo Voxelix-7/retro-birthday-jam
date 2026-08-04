@@ -155,17 +155,35 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 24px;
+  /* `safe center` keeps it centered whenever it fits, but falls back to
+     flex-start (instead of clipping symmetrically off both ends) the
+     moment it doesn't — so the bat can never get cropped. overflow-y:auto
+     is the fallback-of-the-fallback for browsers that don't support the
+     `safe` keyword yet. */
+  justify-content: safe center;
+  gap: clamp(12px, 3vh, 24px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 0;
 }
 
 .bat-sprite {
-  width: 288px;
-  height: 192px;
+  /* Was a fixed 288x192. Now fluid: shrinks on short landscape viewports
+     (down to a 88px-tall floor) so bat + dialog always fit together, and
+     maxes out at the original 192px on anything roomier. aspect-ratio
+     keeps the 3:2 (288:192) proportions exactly, so it never looks
+     stretched or squashed at any size. */
+  height: clamp(88px, 26vh, 192px);
+  aspect-ratio: 3 / 2;
+  width: auto;
+  flex-shrink: 0;
   background-image: url("/sprites/bat.png");
   background-repeat: no-repeat;
-  background-size: 576px 192px; /* 2 frames * 288 */
-  background-position: 0 0;
+  /* Percentage-based (was 576px/192px fixed) so the 2-frame sheet scales
+     together with the element instead of a size that only matched the old
+     fixed 288px width. */
+  background-size: 200% 100%;
+  background-position: 0% 0%;
   cursor: pointer;
   image-rendering: pixelated;
   opacity: 0;
@@ -189,6 +207,9 @@ html, body {
   max-width: 560px;
   font-size: 11px;
   line-height: 1.7;
+  max-height: 55vh;
+  overflow-y: auto;
+  flex-shrink: 0;
   animation: pop 400ms ease;
 }
 
@@ -238,12 +259,23 @@ html, body {
   width: 100%;
   max-width: 640px;
   height: 100%;
+  max-height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 26px;
   padding: 28px 20px;
   overflow-y: auto;
+  overflow-x: hidden;
+  /* Explicit vertical-pan permission on the scroll container itself (the
+     global `touch-action: manipulation` reset already allows panning too,
+     but this removes any ambiguity for the region that actually needs to
+     scroll) plus iOS-style momentum and scroll-chaining containment, so a
+     drag here can never fail to move the list or leak into the page. */
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .map-title {
