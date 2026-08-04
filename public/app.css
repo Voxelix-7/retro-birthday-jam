@@ -254,25 +254,33 @@ html, body {
 }
 
 .map-content {
-  position: relative;
+  /* Was: a flex item using height:100% to size itself, nested inside
+     .screen's own flex/absolute layout. That's two layers of "does this
+     percentage actually resolve to a definite value" — and evidently it
+     didn't reliably, which silently disables overflow-y:auto with no
+     error. position:absolute + inset:0 removes that ambiguity entirely:
+     it's pinned directly to .screen's box (the same rock-solid mechanism
+     every screen in the app already depends on), so its height can never
+     fail to be definite, which is what overflow-y:auto needs to work.
+     .map-stars/.map-moon are separate siblings of .screen, not inside
+     this element, so they stay fixed in place and don't scroll with it. */
+  position: absolute;
+  inset: 0;
   z-index: 1;
-  width: 100%;
-  max-width: 640px;
-  height: 100%;
-  max-height: 100%;
-  min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 26px;
-  padding: 28px 20px;
+  /* .map-content now positions directly off .screen's outer edge instead
+     of inheriting .screen's own safe-area-aware padding as a flex item,
+     so that padding is reproduced here directly. .level-path's own
+     max-width:380px (below) is what actually keeps the level nodes
+     narrow and centered — this element itself intentionally spans the
+     full screen width so it has room to be the scroll container. */
+  padding: max(28px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right))
+    max(28px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
   overflow-y: auto;
   overflow-x: hidden;
-  /* Explicit vertical-pan permission on the scroll container itself (the
-     global `touch-action: manipulation` reset already allows panning too,
-     but this removes any ambiguity for the region that actually needs to
-     scroll) plus iOS-style momentum and scroll-chaining containment, so a
-     drag here can never fail to move the list or leak into the page. */
   touch-action: pan-y;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
