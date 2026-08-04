@@ -155,7 +155,11 @@ function playBatIntro() {
   setTimeout(() => {
     batSprite.style.backgroundPosition = "0 0"; // frame 1
     setTimeout(() => {
-      batSprite.style.backgroundPosition = "-288px 0"; // frame 2, freeze
+      // Percentage (not the old fixed "-288px 0") so this still lands on
+      // frame 2 correctly now that .bat-sprite's size is fluid — with
+      // background-size: 200% 100%, 100% 0% always selects the second of
+      // the two frames regardless of the element's actual rendered size.
+      batSprite.style.backgroundPosition = "100% 0%"; // frame 2, freeze
       batIntroDone = true;
     }, FRAME_MS);
   }, 800);
