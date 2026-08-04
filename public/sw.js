@@ -1,22 +1,22 @@
 // Versioned app-shell + runtime cache.
 //
-// Bump CACHE_VERSION on every deploy that changes any cached asset. The new
-// worker installs quietly alongside whatever is currently controlling the
-// page, precaches fresh copies of the shell under a new cache name, and
-// only takes over — deleting old cache versions — once every open
-// instance of the app has been fully closed and relaunched. There's no
-// prompt and no forced reload: updates just apply the next time the game
-// is opened, which is what makes this safe to do silently.
-const CACHE_VERSION = "wanwan-v1";
+// IMPORTANT LESSON BAKED INTO THIS DESIGN: a service worker only updates
+// when THIS FILE's bytes change — editing app.css/app.js alone does
+// nothing, the browser has no way to know to re-check them. That bit us
+// once already (v1 kept serving stale files indefinitely). So the shell
+// (HTML/CSS/JS — anything that defines how the game behaves) now uses a
+// network-first strategy: it's always fetched fresh when online, and the
+// cache is only ever a fallback for offline play. That means forgetting to
+// bump CACHE_VERSION can no longer cause gameplay code to get stuck stale
+// — only this file's own logic needs a version bump when ITS list of
+// cached URLs changes.
+const CACHE_VERSION = "wanwan-v2";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
-// The static app shell — everything needed to run the game once it's
-// cached. Audio files under /audio/ are deliberately NOT listed here (see
-// album.js — they may not be uploaded yet); they get picked up
-// automatically by the runtime cache below the first time they're
-// successfully fetched, whenever they do exist.
-const PRECACHE_URLS = [
+// Anything that defines behavior/appearance — network-first, cache is just
+// the offline fallback.
+const SHELL_URLS = [
   "/app.html",
   "/app.css",
   "/app.js",
@@ -27,6 +27,11 @@ const PRECACHE_URLS = [
   "/finale.js",
   "/album.js",
   "/manifest.webmanifest",
+];
+
+// Static binary assets — these almost never change once drawn, so
+// cache-first (instant, saves bandwidth) is the right call for them.
+const STATIC_URLS = [
   "/icons/icon-192.png",
   "/icons/icon-512.png",
   "/sprites/bat.png",
@@ -47,20 +52,23 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     (async () => {
       const cache = await caches.open(SHELL_CACHE);
-      // Each file is fetched and cached independently (not cache.addAll,
-      // which aborts the ENTIRE install if even one request fails) so a
-      // missing/renamed asset can't break the whole precache step.
+      // Each file fetched/cached independently (Promise.allSettled, not
+      // cache.addAll) so one missing/renamed asset — e.g. the /audio/
+      // tracks that may not be uploaded yet — can't abort the whole
+      // precache step.
       await Promise.allSettled(
-        PRECACHE_URLS.map(async (url) => {
-          const response = await fetch(url, { cache: "no-cache" });
+        [...SHELL_URLS, ...STATIC_URLS].map(async (url) => {
+          const response = await fetch(url, { cache: "no-store" });
           if (response.ok) await cache.put(url, response);
         }),
       );
+      // Take over immediately instead of waiting for every open
+      // tab/instance to close first — combined with network-first below,
+      // this is what makes an update actually visible right away, still
+      // with zero prompts or interruptions.
+      await self.skipWaiting();
     })(),
   );
-  // Deliberately no self.skipWaiting() here — see the note at the top of
-  // this file. The new worker waits its turn instead of forcing an update
-  // mid-session.
 });
 
 self.addEventListener("activate", (event) => {
@@ -77,10 +85,42 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+function isShellUrl(url) {
+  return url.origin === self.location.origin && SHELL_URLS.includes(url.pathname);
+}
+
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET") return;
 
+  const url = new URL(request.url);
+
+  if (isShellUrl(url)) {
+    event.respondWith(
+      (async () => {
+        try {
+          // no-store bypasses any HTTP-level Cache-Control caching too —
+          // not just the Cache Storage API — so this is genuinely always
+          // fresh whenever there's a connection.
+          const response = await fetch(request, { cache: "no-store" });
+          if (response.ok) {
+            const cache = await caches.open(SHELL_CACHE);
+            cache.put(request, response.clone());
+          }
+          return response;
+        } catch {
+          const cached = await caches.match(request);
+          if (cached) return cached;
+          throw new Error("Offline and no cached copy of this file yet.");
+        }
+      })(),
+    );
+    return;
+  }
+
+  // Everything else (sprites, fonts, audio once uploaded, etc.):
+  // cache-first, populating the runtime cache the first time each asset is
+  // actually requested.
   event.respondWith(
     (async () => {
       const cached = await caches.match(request);
@@ -88,19 +128,12 @@ self.addEventListener("fetch", (event) => {
 
       try {
         const response = await fetch(request);
-        // Cache successful same-origin responses, and opaque cross-origin
-        // ones too (e.g. the Google Fonts CSS/font files) so everything
-        // that's actually been used once keeps working offline from then
-        // on — this is what picks up the not-yet-uploaded audio tracks
-        // automatically as soon as they exist.
         if (response.ok || response.type === "opaque") {
           const cache = await caches.open(RUNTIME_CACHE);
           cache.put(request, response.clone());
         }
         return response;
       } catch (err) {
-        // Offline and not already cached — nothing more we can do for
-        // this particular request.
         throw err;
       }
     })(),
