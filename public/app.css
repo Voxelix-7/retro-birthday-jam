@@ -219,7 +219,21 @@ html, body {
 /* LEVEL MAP */
 .screen[data-screen="map"] {
   background: radial-gradient(ellipse at 50% -10%, #3d2440 0%, #2d1a2e 45%, #000 100%);
-  position: relative;
+  /* FIX: this was previously `position: relative`, which drops the
+     `position: absolute; inset: 0;` fill-the-screen behavior inherited
+     from the base `.screen` rule above (relative positioning doesn't
+     stretch to a parent's size the way absolute does). With no explicit
+     height and no in-flow children (map-stars/map-moon/map-content are
+     all `position: absolute`, which takes them out of normal flow and
+     means they contribute zero height to their relatively-positioned
+     parent), this screen collapsed to ~0px tall — invisible on every
+     viewport size, not just larger ones, and indistinguishable from a
+     black screen once "Get started" was clicked. `position: absolute`
+     keeps the same stacking/containing-block context this rule actually
+     needs (for .map-content's `inset:0`, the ::after overlay, etc.)
+     while restoring the fill-the-whole-screen sizing every other screen
+     already has. */
+  position: absolute;
   overflow: hidden;
 }
 
