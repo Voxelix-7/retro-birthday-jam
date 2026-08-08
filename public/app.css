@@ -575,9 +575,23 @@ html, body {
 #game {
   display: block;
   background: #000;
-  width: 100%;
+  /* Both width and height are "auto", constrained only by max-width/
+     max-height, with an explicit aspect-ratio matching the canvas's real
+     960x360 drawing buffer. Previously width:100% (a definite value) and
+     max-height:60vh (an independent cap) fought each other on short
+     screens: the height got clamped down by the vh cap while the width
+     stayed at 100%, squashing everything drawn inside — the boy, the cat,
+     the obstacles all read as horizontally stretched. Locking the ratio
+     means the browser always picks the largest size that fits BOTH caps
+     without distorting the picture, and shrinks proportionally instead of
+     warping when a screen is short. It also naturally stays inset from
+     the screen edges — the unused vw/vh becomes visible margin instead of
+     the canvas running edge to edge. */
+  width: auto;
   height: auto;
-  max-height: 60vh;
+  max-width: min(92vw, 960px);
+  max-height: min(60vh, 500px);
+  aspect-ratio: 960 / 360;
   border: 3px solid var(--text);
   image-rendering: pixelated;
 }
@@ -681,7 +695,14 @@ html, body {
 .screen[data-screen="chesscutscene"] {
   background: #fff;
   flex-direction: column;
-  gap: 24px;
+  /* Fluid gap instead of a fixed 24px — on a short landscape screen, this
+     alone can be the difference between the action buttons fitting or
+     getting squeezed out, since the vertical budget here is tight. Note:
+     this app disables page scrolling everywhere by design (html/body have
+     overflow:hidden), so every screen is expected to always fit on its
+     own — the fix here is sizing the canvas to actually respect that
+     budget (below), not adding scroll as a fallback. */
+  gap: clamp(8px, 2.5vh, 24px);
 }
 
 /* The default ghost-outline/orange-btn colors assume a dark backdrop —
@@ -700,8 +721,18 @@ html, body {
 }
 
 .chess-canvas {
-  width: min(94vw, 900px);
+  /* No fixed width — width/height are both left "auto" so the browser's
+     native replaced-element sizing derives the actual size from the
+     canvas's real pixel aspect ratio, fit to stay within BOTH caps below
+     at once (the same idea as object-fit: contain, without needing to
+     know the ratio ahead of time). Capping height via vh, not just width
+     via vw, is what was missing before: that's what let the canvas
+     demand more vertical space than a short screen actually has, pushing
+     the action buttons out of the visible area with nothing to scroll to. */
+  width: auto;
   height: auto;
+  max-width: min(90vw, 700px);
+  max-height: min(66vh, 520px);
   image-rendering: pixelated;
   animation: pop 500ms ease;
 }
@@ -709,7 +740,8 @@ html, body {
 .chesscutscene-actions {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: clamp(8px, 2vw, 14px);
+  flex-shrink: 0;
   animation: pop 500ms ease;
 }
 
@@ -1023,6 +1055,14 @@ html, body {
   width: 100%;
   height: 100%;
   display: flex;
+  /* Breathing room between the whole finale layout and the screen edges,
+     on top of .screen's own base padding — everything INSIDE this box
+     (left/right halves, icons, cake, button) already aligns the way it
+     should, so this only pulls the group in from the edges without
+     touching that internal alignment. Fluid (vh/vw-based, not a fixed
+     px), so it scales with the device instead of being tuned to one
+     screen size someone happened to test on. */
+  padding: clamp(12px, 5vh, 48px) clamp(16px, 6vw, 64px);
 }
 
 .finale-left {
@@ -1033,6 +1073,7 @@ html, body {
   justify-content: center;
   text-align: center;
   gap: 6px;
+  min-width: 0;
 }
 
 .finale-title,
@@ -1043,19 +1084,27 @@ html, body {
   line-height: 1.2;
 }
 
-.finale-title { font-size: 52px; }
-.finale-subtitle { font-size: 28px; }
+/* Sized off viewport HEIGHT, not width — on the short landscape screens
+   this app targets, height is the tight dimension, so scaling against it
+   is what actually keeps text/icons/cake from crowding each other or the
+   screen edges. clamp() with a vh ratio (rather than fixed per-breakpoint
+   px values) adapts smoothly to any device instead of just the couple of
+   sizes that happened to get tested. */
+.finale-title { font-size: clamp(26px, 9vh, 52px); }
+.finale-subtitle { font-size: clamp(15px, 5vh, 28px); }
 
 .finale-icons {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin-top: 56px;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: clamp(8px, 2.2vh, 14px);
+  margin-top: clamp(16px, 7vh, 56px);
 }
 
 .finale-icon-btn {
-  width: 64px;
-  height: 64px;
+  width: clamp(44px, 10vh, 64px);
+  height: clamp(44px, 10vh, 64px);
   padding: 0;
   border: 2px solid var(--text);
   border-radius: 10px;
@@ -1073,14 +1122,14 @@ html, body {
 }
 
 .finale-icon-img {
-  width: 48px;
-  height: 48px;
+  width: clamp(32px, 7.5vh, 48px);
+  height: clamp(32px, 7.5vh, 48px);
   image-rendering: pixelated;
 }
 
 .finale-map-btn {
-  height: 64px;
-  font-size: 11px;
+  height: clamp(44px, 10vh, 64px);
+  font-size: clamp(9px, 2vh, 11px);
 }
 
 .finale-right {
@@ -1089,12 +1138,15 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 18px;
+  gap: clamp(10px, 3vh, 18px);
+  min-width: 0;
 }
 
 .finale-cake {
-  width: 300px;
-  height: 300px;
+  /* aspect-ratio keeps it square off a single clamp()'d width, instead of
+     repeating the same ratio-derived number for both width and height. */
+  width: clamp(140px, 36vh, 300px);
+  aspect-ratio: 1 / 1;
   background-image: url("/sprites/cake_sheet.png");
   background-repeat: no-repeat;
   background-size: 500% 100%; /* one sheet: 5 equal 128x128 cells */
@@ -1103,20 +1155,21 @@ html, body {
 }
 
 @media (max-width: 760px) {
+  /* Narrow-portrait-shaped fallback only. This app is landscape-locked via
+     the manifest + rotate-overlay, so real gameplay on a phone never hits
+     this — it's kept purely as a safety net for an unusually narrow
+     browser window (e.g. a resized desktop browser), while the clamp()
+     rules above now handle actual short-landscape phones ratio-based
+     rather than through fixed per-breakpoint pixel overrides. */
   .finale-content {
     flex-direction: column-reverse;
     height: auto;
-    padding: 24px 0;
-    gap: 20px;
   }
   .finale-left,
   .finale-right {
     flex: none;
     width: 100%;
   }
-  .finale-title { font-size: 38px; }
-  .finale-subtitle { font-size: 22px; }
-  .finale-cake { width: 220px; height: 220px; }
 }
 
 @media (max-width: 640px) {
