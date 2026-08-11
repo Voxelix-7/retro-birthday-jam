@@ -589,8 +589,8 @@ html, body {
      the canvas running edge to edge. */
   width: auto;
   height: auto;
-  max-width: min(92vw, 960px);
-  max-height: min(60vh, 500px);
+  max-width: min(96vw, 960px);
+  max-height: min(68vh, 500px);
   aspect-ratio: 960 / 360;
   border: 3px solid var(--text);
   image-rendering: pixelated;
