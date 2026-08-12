@@ -253,12 +253,25 @@ function startMapStars() {
 
   const canvas = document.getElementById("map-stars");
   const ctx = canvas.getContext("2d");
-  const resize = () => {
-    canvas.width = canvas.clientWidth;
-    canvas.height = canvas.clientHeight;
+
+  // Keeps the canvas's backing store in sync with its on-screen size, but
+  // ONLY when it actually has one. When the map screen is hidden
+  // (display:none — e.g. while inside a level), clientWidth/clientHeight
+  // both read as 0; writing that straight into canvas.width/height wipes
+  // the canvas down to 0x0. A hidden canvas never fires a resize event on
+  // its own to correct that, so it could stay 0x0 indefinitely — which is
+  // what made the stars sometimes vanish for good after switching between
+  // levels and back to the map.
+  const resizeIfVisible = () => {
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    if (w > 0 && h > 0 && (canvas.width !== w || canvas.height !== h)) {
+      canvas.width = w;
+      canvas.height = h;
+    }
   };
-  resize();
-  window.addEventListener("resize", resize);
+  resizeIfVisible();
+  window.addEventListener("resize", resizeIfVisible);
 
   const stars = Array.from({ length: 130 }, () => ({
     x: Math.random(),
@@ -271,6 +284,10 @@ function startMapStars() {
   function loop() {
     const mapScreen = document.querySelector('[data-screen="map"]');
     if (mapScreen.classList.contains("active")) {
+      // Self-heals the size every time the map becomes visible again, in
+      // case an actual resize happened while it was hidden and got
+      // skipped above (no visible size to read at the time).
+      resizeIfVisible();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       stars.forEach((st) => {
         st.phase += st.speed;
