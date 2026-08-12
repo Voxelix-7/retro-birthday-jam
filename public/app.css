@@ -453,52 +453,88 @@ html, body {
 .coming-soon-box p { font-size: 11px; line-height: 1.8; margin: 0 0 18px; }
 
 /* INTRO / INSTRUCTIONS */
-.intro-panel { min-height: 360px; display: flex; flex-direction: column; }
+.intro-panel {
+  /* Was a fixed min-height:360px combined with .orange-panel's fixed
+     28px/26px padding — together these could force more total height
+     than a short landscape phone screen actually has (no page scroll
+     exists anywhere in this app by design), which is what made this
+     screen look oversized/cramped on mobile. clamp() lets it request up
+     to 360px on tall/desktop screens but never demand more than the
+     screen can realistically give on a short one. */
+  min-height: clamp(180px, 58vh, 360px);
+  display: flex;
+  flex-direction: column;
+  /* Overrides .orange-panel's fixed padding with a fluid version so the
+     panel's own chrome doesn't eat into a short screen's limited height. */
+  padding: clamp(12px, 3vh, 28px) clamp(14px, 3.5vw, 26px);
+}
 
 .intro-slides { flex: 1; display: flex; flex-direction: column; }
 
-.slide { display: none; flex: 1; flex-direction: column; justify-content: center; gap: 20px; }
+.slide {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(10px, 3vh, 20px);
+}
 .slide.active { display: flex; }
 
 .slide-split {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: clamp(10px, 3vh, 24px);
   flex: 1;
 }
 .slide-split .slide-text { flex: 1; text-align: left; }
 
 .slide-text {
   color: #000;
-  font-size: 13px;
-  line-height: 1.9;
+  /* Fluid instead of a fixed 13px (11px only under the old 640px-width
+     breakpoint) — scales with screen height directly, so it also shrinks
+     correctly on landscape phones that are short but wider than 640px,
+     which the old width-only breakpoint never caught. */
+  font-size: clamp(10px, 2.6vh, 13px);
+  line-height: 1.7;
   margin: 0;
 }
 .slide-text.center { text-align: center; margin: auto 0; }
 
 .slide-char {
-  width: 256px;
-  height: 256px;
+  /* Fluid square sizing off viewport height, replacing the old fixed
+     256px (176px under the old width breakpoint). aspect-ratio keeps it
+     square from a single clamp()'d width instead of repeating the same
+     number for both width and height. */
+  width: clamp(80px, 24vh, 256px);
+  aspect-ratio: 1 / 1;
   image-rendering: pixelated;
   background-repeat: no-repeat;
   flex-shrink: 0;
 }
 .char-aya {
   background-image: url("/sprites/cat_blink.png");
-  background-size: 512px 256px;
+  /* Percentage-based background-size (matching the sheet's real 2-frame
+     layout: 512x256 = two 256x256 frames) instead of the old fixed-px
+     value. Fixed px only lined up correctly at one specific element size;
+     percentages keep the frame crop aligned no matter what size
+     .slide-char actually renders at — same technique already used
+     elsewhere in this app for fluid sprite sheets (.bat-sprite, etc). */
+  background-size: 200% 100%;
   background-position: 0 0;
 }
 .char-marwan {
   background-image: url("/sprites/boy_idle.png");
-  background-size: 256px 256px;
+  /* Single-frame sheet (no cropping needed) — 100% 100% always shows the
+     whole image at whatever size .slide-char currently is. */
+  background-size: 100% 100%;
 }
 
 .intro-nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  margin-top: 12px;
+  gap: clamp(10px, 2.5vh, 16px);
+  margin-top: clamp(6px, 2vh, 12px);
 }
 
 .nav-arrow {
@@ -506,9 +542,9 @@ html, body {
   border: 2px solid #000;
   color: #000;
   font-family: inherit;
-  font-size: 13px;
-  width: 34px;
-  height: 34px;
+  font-size: clamp(11px, 2.6vh, 13px);
+  width: clamp(28px, 7vh, 34px);
+  height: clamp(28px, 7vh, 34px);
   cursor: pointer;
   border-radius: 6px;
 }
@@ -526,7 +562,12 @@ html, body {
 }
 .intro-dot.active { background: #000; }
 
-.intro-start-wrap { display: flex; justify-content: flex-end; margin-top: 10px; min-height: 44px; }
+.intro-start-wrap {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: clamp(6px, 1.5vh, 10px);
+  min-height: clamp(34px, 8vh, 44px);
+}
 
 .orange-btn {
   background: #f0e6f0;
@@ -589,8 +630,8 @@ html, body {
      the canvas running edge to edge. */
   width: auto;
   height: auto;
-  max-width: min(96vw, 960px);
-  max-height: min(68vh, 500px);
+  max-width: min(92vw, 960px);
+  max-height: min(60vh, 500px);
   aspect-ratio: 960 / 360;
   border: 3px solid var(--text);
   image-rendering: pixelated;
@@ -783,7 +824,7 @@ html, body {
    the button. TUNE HERE if you want her bigger/smaller or sitting more/less
    on top of the button: adjust `width` and `margin-bottom`. */
 .aya-sprite {
-  width: 64px;
+  width: clamp(40px, 9vh, 64px);
   aspect-ratio: 450 / 413;
   background-image: url("/sprites/aya_grass.png");
   background-repeat: no-repeat;
@@ -809,11 +850,11 @@ html, body {
   border: 3px solid var(--text);
   border-radius: 14px;
   box-shadow: 6px 6px 0 rgba(0,0,0,0.5);
-  padding: 18px 16px;
+  padding: clamp(10px, 3vh, 18px) clamp(10px, 3vw, 16px);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: clamp(8px, 2.2vh, 14px);
   animation: pop 400ms ease;
 }
 
@@ -947,20 +988,28 @@ html, body {
   animation: pop 500ms ease;
 }
 
-@media (max-width: 640px) {
+/* Combined width-OR-height trigger: the width-only version of this query
+   used to miss real landscape phones entirely, since they're typically
+   wider than 640px even though they're short — exactly the case that made
+   the player look oversized. max-height catches that case; max-width is
+   kept as a fallback for a genuinely narrow window (e.g. resized desktop
+   browser). */
+@media (max-width: 640px), (max-height: 480px) {
   .player-panel {
     position: fixed;
     left: 50%;
     top: 42%;
     right: auto;
     transform: translate(-50%, -50%);
-    width: min(86vw, 300px);
-    max-height: 62vh;
+    width: min(84vw, 300px);
+    max-height: min(64vh, 420px);
+    padding: clamp(8px, 2.2vh, 14px) clamp(8px, 2.5vw, 12px);
+    gap: clamp(6px, 1.6vh, 10px);
   }
   .musicplayer-ok-wrap {
     position: fixed;
     left: 50%;
-    bottom: 18px;
+    bottom: clamp(8px, 3vh, 18px);
     transform: translateX(-50%);
   }
 }
@@ -1175,11 +1224,14 @@ html, body {
 @media (max-width: 640px) {
   .title { font-size: 14px; }
   .bat-sprite { width: 192px; height: 128px; background-size: 384px 128px; }
+  /* Narrow-width stacking fallback only (e.g. a genuinely narrow resized
+     desktop browser) — sizing itself is now handled by the fluid,
+     vh-based .slide-char/.slide-text rules above, which correctly scale
+     on short landscape phones too (the old fixed 160px/11px overrides
+     here only fired below 640px width, which real landscape phones are
+     usually wider than despite being short — that's what made them look
+     oversized on mobile in the first place). */
   .slide-split { flex-direction: column; gap: 12px; }
-  .slide-char { width: 160px; height: 160px; }
-  .char-aya { background-size: 320px 160px; }
-  .char-marwan { background-size: 160px 160px; }
-  .slide-text { font-size: 11px; }
   .gameover-panel .blink-sprite { width: 140px; height: 140px; background-size: 280px 140px; }
   .map-title { font-size: 12px; }
   .level-node-frame { width: 60px; height: 60px; font-size: 16px; }
