@@ -10,7 +10,7 @@
 // bump CACHE_VERSION can no longer cause gameplay code to get stuck stale
 // — only this file's own logic needs a version bump when ITS list of
 // cached URLs changes.
-const CACHE_VERSION = "wanwan-v2";
+const CACHE_VERSION = "wanwan-v3";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
