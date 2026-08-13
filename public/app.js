@@ -325,6 +325,20 @@ function initIntro(level) {
           </div>
         </div>`;
       }
+      // Level-1-only case: last slide ("Aya likes cubes...") shows an image
+      // below its text instead of beside it. Deliberately not folded into
+      // the `slide.char` branch above (that one lays out side-by-side and
+      // is shared by every level) — this is a one-off stacked layout used
+      // by exactly this slide, gated on the presence of `slide.image` in
+      // levels.js.
+      if (slide.image) {
+        return `<div class="slide${active}" data-slide="${i}">
+          <div class="slide-stack">
+            <p class="slide-text center">${slide.text}</p>
+            <img class="slide-image" src="${slide.image}" alt="" />
+          </div>
+        </div>`;
+      }
       return `<div class="slide${active}" data-slide="${i}">
         <p class="slide-text center">${slide.text}</p>
       </div>`;

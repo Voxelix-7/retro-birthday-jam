@@ -29,6 +29,7 @@ export const LEVELS = [
       {
         text: "Aya likes cubes, touch them and you lose, Loser",
         char: null,
+        image: "/sprites/loser-panel.jpg",
       },
     ],
     // `ending` describes what happens after a win.

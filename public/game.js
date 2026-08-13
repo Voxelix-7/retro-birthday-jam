@@ -149,6 +149,25 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
     // camera
     camera = Math.max(0, Math.min(player.x - 200, levelLength - CONFIG.width));
 
+    // Keep the cat visible on-screen once the camera actually starts
+    // scrolling (camera > 0). While camera is still 0 — the opening
+    // dead-zone before player.x > 200 — we deliberately do nothing here,
+    // so cat.x stays at its off-screen starting value (-80) and she's not
+    // visible yet, preserving the "she's behind you" entrance.
+    //
+    // Once the camera is moving, if the chase AI above has let her fall
+    // behind the left edge of the screen (cat.x < camera + 10, where +10
+    // matches the -10 draw offset used below so this lines her sprite's
+    // left edge up with screen x = 0), ease her forward toward that edge
+    // instead of snapping her there instantly. This is purely a visual
+    // floor — it only ever pulls her forward when she's lagging behind the
+    // camera, it never overrides catSpeed/catGain or moves her closer to
+    // the player than the real chase AI already has her, so difficulty and
+    // the win condition are untouched.
+    if (camera > 0 && cat.x < camera + 10) {
+      cat.x += (camera + 10 - cat.x) * 0.08;
+    }
+
     // animation frames
     animT += dt;
     if (animT >= CONFIG.frameMs) {

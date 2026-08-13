@@ -488,6 +488,33 @@ html, body {
 }
 .slide-split .slide-text { flex: 1; text-align: left; }
 
+/* Level-1-only: last instructions slide ("Aya likes cubes...") stacks its
+   punchline image below the text instead of beside it like .slide-split
+   does. Scoped to this one slide via the `slide.image` field in
+   levels.js — not a general-purpose layout, so it intentionally lives
+   separately from .slide-split rather than adding a variant/prop to it. */
+.slide-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 2vh, 16px);
+  flex: 1;
+}
+
+.slide-image {
+  display: block;
+  width: auto;
+  height: auto;
+  /* Dual vw/vh cap (same pattern as #game and .chess-canvas below) so the
+     image can never push this slide taller than a short landscape phone
+     screen has room for — this app has no page scroll anywhere by design. */
+  max-width: min(70vw, 240px);
+  max-height: min(30vh, 200px);
+  object-fit: contain;
+  border-radius: 6px;
+}
+
 .slide-text {
   color: #000;
   /* Fluid instead of a fixed 13px (11px only under the old 640px-width
@@ -499,6 +526,12 @@ html, body {
   margin: 0;
 }
 .slide-text.center { text-align: center; margin: auto 0; }
+
+/* Inside .slide-stack, the text is one of two stacked children (not the
+   sole child centering itself), so the auto vertical margin above would
+   fight with the image below it — .slide-stack's own `justify-content:
+   center` already handles centering the pair, so cancel it here. */
+.slide-stack .slide-text.center { margin: 0; }
 
 .slide-char {
   /* Fluid square sizing off viewport height, replacing the old fixed
