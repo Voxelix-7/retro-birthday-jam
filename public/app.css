@@ -545,14 +545,14 @@ html, body {
   flex-shrink: 0;
 }
 .char-aya {
-  background-image: url("/sprites/cat_blink.png");
+  background-image: url("/sprites/cat_idle.png");
   /* Percentage-based background-size (matching the sheet's real 2-frame
      layout: 512x256 = two 256x256 frames) instead of the old fixed-px
      value. Fixed px only lined up correctly at one specific element size;
      percentages keep the frame crop aligned no matter what size
      .slide-char actually renders at — same technique already used
      elsewhere in this app for fluid sprite sheets (.bat-sprite, etc). */
-  background-size: 200% 100%;
+  background-size: 100% 100%;
   background-position: 0 0;
 }
 .char-marwan {
