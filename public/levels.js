@@ -15,7 +15,7 @@ export const LEVELS = [
     winType: "envelope",
     slides: [
       {
-        text: "This is (Idk), she's a female character based on me. She wants Chibi Marwan gone. Run and don't look back.",
+        text: "This is Aya, she's a female character based on me. She wants Chibi Marwan gone. Run and don't look back.",
         char: "aya",
       },
       {
@@ -72,7 +72,7 @@ export const LEVELS = [
     ending: {
       type: "musicplayer",
       confirm: {
-        text: "You like my tasts in music right? :D",
+        text: "You like my taste in music right? :D",
         yes: "OMG YES!",
         no: "I prefer knife fights",
         noShrinks: true,

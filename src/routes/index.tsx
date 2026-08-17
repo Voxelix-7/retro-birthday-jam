@@ -4,9 +4,9 @@ import { useEffect } from "react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "For WanWan — Happy Birthday" },
+      { title: "For Marwan — Happy Birthday" },
       { name: "description", content: "A secret birthday PWA built for Marwan." },
-      { property: "og:title", content: "For WanWan — Happy Birthday" },
+      { property: "og:title", content: "For Marwan — Happy Birthday" },
       { property: "og:description", content: "A secret birthday PWA built for Marwan." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

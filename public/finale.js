@@ -3,7 +3,7 @@
 // two self-contained visual bits: the cake's flicker loop, and drawing the
 // two canvas icons.
 
-import { drawEnvelope, drawChessPiece } from "/game.js";
+import { drawEnvelope } from "/game.js";
 
 // -------- Cake animation --------
 // One sheet, one row: cake_sheet.png is 640x128 — 5 equal 128x128 frames.
@@ -142,7 +142,6 @@ export function stopConfetti() {
 // wired up alongside these in app.html/app.js.
 export function drawFinaleIcons() {
   const envelopeCanvas = document.getElementById("finale-canvas-envelope");
-  const chessCanvas = document.getElementById("finale-canvas-chess");
 
   if (envelopeCanvas) {
     const ctx = envelopeCanvas.getContext("2d");
@@ -150,9 +149,5 @@ export function drawFinaleIcons() {
     drawEnvelope(ctx, (envelopeCanvas.width - 40) / 2, (envelopeCanvas.height - 28) / 2);
   }
 
-  if (chessCanvas) {
-    const ctx = chessCanvas.getContext("2d");
-    ctx.clearRect(0, 0, chessCanvas.width, chessCanvas.height);
-    drawChessPiece(ctx, (chessCanvas.width - 22) / 2, (chessCanvas.height - 34) / 2);
-  }
+
 }

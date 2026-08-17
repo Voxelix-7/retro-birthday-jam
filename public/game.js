@@ -40,12 +40,13 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
   const levelLength = level?.length ?? CONFIG.levelLength;
   const winType = level?.winType ?? "cake";
 
-  const [boyRun, boyStand, catRun, cake, cd] = await Promise.all([
+  const [boyRun, boyStand, catRun, cake, chess, cd] = await Promise.all([
     loadImg("/sprites/boy_run.png"),
     loadImg("/sprites/boy_stand.png"),
     loadImg("/sprites/cat_run.png"),
     winType === "cake" ? loadImg("/sprites/cake_target.png") : Promise.resolve(null),
-    winType === "cd" ? loadImg("/sprites/cd.png") : Promise.resolve(null),
+    winType === "chess" ? loadImg("/sprites/chess_piece.png") : Promise.resolve(null),
+    winType === "cd" ? loadImg("/sprites/cd.png") : Promise.resolve(null)
   ]);
 
   const keys = { left: false, right: false, jump: false };
@@ -216,8 +217,9 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
     if (targetScreenX > -160 && targetScreenX < CONFIG.width + 20) {
       if (winType === "envelope") {
         drawEnvelope(ctx, targetScreenX - 20, envelope.y);
-      } else if (winType === "chesspiece") {
-        drawChessPiece(ctx, targetScreenX - 11, envelope.y - 20);
+      } else if (winType === "chess") {
+        const chessSize = 40;
+        ctx.drawImage(chess, targetScreenX - chessSize / 2, envelope.y - chessSize / 2, chessSize, chessSize);
       } else if (winType === "cd") {
         const cdSize = 40;
         ctx.drawImage(cd, targetScreenX - cdSize / 2, envelope.y - cdSize / 2, cdSize, cdSize);
@@ -321,29 +323,3 @@ export function drawEnvelope(ctx, x, y) {
 
 // Pixel-drawn black chess piece (pawn silhouette), used as the level-2 win
 // target. x/y is roughly the top-left of a 22x34 box.
-export function drawChessPiece(ctx, x, y) {
-  const w = 22, h = 34;
-
-  // soft glow behind it — needed for contrast since the piece itself is
-  // black against the black game background.
-  ctx.fillStyle = "rgba(240,230,240,0.18)";
-  ctx.fillRect(x - 8, y - 8, w + 16, h + 16);
-
-  ctx.fillStyle = "#000";
-  ctx.strokeStyle = "#f0e6f0";
-  ctx.lineWidth = 2;
-
-  // base
-  ctx.fillRect(x + 2, y + h - 8, w - 4, 8);
-  ctx.strokeRect(x + 2, y + h - 8, w - 4, 8);
-
-  // stem
-  ctx.fillRect(x + w / 2 - 4, y + 14, 8, h - 22);
-  ctx.strokeRect(x + w / 2 - 4, y + 14, 8, h - 22);
-
-  // head
-  ctx.beginPath();
-  ctx.arc(x + w / 2, y + 10, 8, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.stroke();
-}
