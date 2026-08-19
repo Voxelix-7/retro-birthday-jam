@@ -681,10 +681,17 @@ document.getElementById("finale-player-close").addEventListener("click", () => {
 (function makeFinalePlayerDraggable() {
   const win = document.getElementById("finale-player-window");
   const handle = document.getElementById("finale-player-titlebar");
+  const closeBtn = document.getElementById("finale-player-close");
   let dragging = false;
   let startX, startY, startLeft, startTop;
 
   handle.addEventListener("pointerdown", (e) => {
+    // The close (X) button lives inside this handle, so its pointerdown
+    // bubbles up here too. Without this guard, setPointerCapture below
+    // redirects the button's own click event to the handle instead, which
+    // is what made the X button appear completely unresponsive.
+    if (e.target === closeBtn || closeBtn.contains(e.target)) return;
+
     dragging = true;
     handle.setPointerCapture(e.pointerId);
     const rect = win.getBoundingClientRect();

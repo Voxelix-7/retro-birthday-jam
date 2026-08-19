@@ -4,6 +4,16 @@
 // The cat still chases you. Flip back to false before shipping.
 const DEBUG_DISABLE_ENEMIES = false;
 
+// Original speed constants below were tuned as "pixels per rendered frame"
+// assuming a steady ~60fps. FRAME_REF_MS converts that same tuning into a
+// real-time rate so movement stays correct and in sync with the (already
+// time-based) animation clock even if the actual frame rate drops — e.g.
+// under device load. Without this, a slow frame would render the run-cycle
+// animation ticking on schedule (it's clock based) while position updates
+// stalled (they weren't), which is what caused the "legs move but the
+// level doesn't" bug.
+const FRAME_REF_MS = 1000 / 60;
+
 const CONFIG = {
   width: 960,
   height: 360,
@@ -11,17 +21,38 @@ const CONFIG = {
   jump: -11,
   playerSpeed: 3.4,
   catBaseSpeed: 2.7,
-  catGain: 0.00004, // px/frame^2, ramps up over time
+  catGain: 0.00004, // fallback per-ms growth rate for the cat's chase speed, used if a level doesn't specify its own
+  catGainCap: 0.3, // fallback ceiling on how much the cat's own growth term can add, used if a level doesn't specify its own
+  speedRampPerSecond: 0.05, // fallback: how fast the overall pace multiplier grows per second of play, if a level doesn't specify its own
+  maxSpeedMultiplier: 2.4, // hard cap on the pace multiplier so movement/animation never spirals into unplayable territory
+  maxAnimationSpeedMultiplier: 1.65, // keep the run cycle readable after the pace reaches its cap
   levelLength: 5400, // fallback if no level config is passed in
   groundY: 300,
   frameMs: 125,
 };
 
-// Enemy positions as fractions along the level, so they scale with whatever
-// level length is passed in (defaults preserve the original layout).
-const ENEMY_FRACTIONS = [
-  0.1296, 0.213, 0.2963, 0.3889, 0.4907, 0.5926, 0.7037, 0.8148, 0.9259,
-];
+// Obstacle (cube) layout: instead of a fixed evenly-spaced list, positions
+// are generated with shrinking gaps as the level progresses — so cubes
+// show up more and more often the further/longer you've been running,
+// mirroring the same "everything speeds up" feeling as the pace multiplier
+// below. minSpacing is a floor so gaps never shrink past the player's
+// maximum horizontal jump distance at the capped game speed.
+function generateEnemyPositions(levelLength) {
+  const positions = [];
+  const startFraction = 0.12;
+  const endFraction = 0.95;
+  const minSpacing = 340;
+
+  let x = levelLength * startFraction;
+  let spacing = levelLength * 0.11;
+
+  while (x < levelLength * endFraction) {
+    positions.push(x);
+    spacing = Math.max(minSpacing, spacing * 0.9);
+    x += spacing;
+  }
+  return positions;
+}
 
 function loadImg(src) {
   return new Promise((res) => {
@@ -39,6 +70,19 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
 
   const levelLength = level?.length ?? CONFIG.levelLength;
   const winType = level?.winType ?? "cake";
+
+  // Per-level pace tuning, with sane fallbacks so a level missing these
+  // fields still runs at the old default feel.
+  const baseSpeedMultiplier = level?.baseSpeedMultiplier ?? 1;
+  const speedRampPerSecond = level?.speedRampPerSecond ?? CONFIG.speedRampPerSecond;
+  const catGainRate = level?.catGain ?? CONFIG.catGain;
+  // Ceiling on the cat's own growth term (catGainRate * elapsed). Capped
+  // strictly below CONFIG.playerSpeed - CONFIG.catBaseSpeed for every
+  // level, so — as long as the player is actively moving — the cat's
+  // effective speed can never permanently exceed the player's. The chase
+  // still tightens the longer a level runs (harder to recover from a
+  // mistake), it just can never become mathematically unwinnable.
+  const catGainCap = level?.catGainCap ?? CONFIG.catGainCap;
 
   const [boyRun, boyStand, catRun, cake, chess, cd] = await Promise.all([
     loadImg("/sprites/boy_run.png"),
@@ -65,11 +109,12 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
   const player = { x: 60, y: CONFIG.groundY - 64, vy: 0, w: 44, h: 60, onGround: true, facing: 1, moving: false };
   const cat = { x: -80, y: CONFIG.groundY - 64, w: 44, h: 60 };
 
-  // Enemies: bouncing blobs at fixed x positions along level
+  // Enemies: bouncing blobs, laid out with increasing density toward the
+  // end of the level.
   const enemies = [];
   if (!DEBUG_DISABLE_ENEMIES) {
-    ENEMY_FRACTIONS.forEach((f) => enemies.push({
-      x: f * levelLength, baseY: CONFIG.groundY - 24, y: CONFIG.groundY - 24, w: 28, h: 24, phase: Math.random() * Math.PI * 2, amp: 10 + Math.random() * 6,
+    generateEnemyPositions(levelLength).forEach((x) => enemies.push({
+      x, baseY: CONFIG.groundY - 24, y: CONFIG.groundY - 24, w: 28, h: 24, phase: Math.random() * Math.PI * 2, amp: 10 + Math.random() * 6,
     }));
   }
 
@@ -91,7 +136,11 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
   let boyFrame = 0, catFrame = 0;
   let camera = 0;
   let elapsed = 0;
-  let catSpeed = CONFIG.catBaseSpeed;
+  let catSpeed = CONFIG.catBaseSpeed * baseSpeedMultiplier;
+  // Overall pace multiplier — climbs with elapsed play time (Dino-game
+  // style) and scales player speed, cat speed, cube bounce speed, and run
+  // animation rate together, so everything visibly speeds up in lockstep.
+  let speedMultiplier = baseSpeedMultiplier;
   let done = false;
   running = true;
   let paused = !!startPaused;
@@ -101,6 +150,7 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
     if (!running) return;
     const dt = Math.min(40, now - last);
     last = now;
+    const dtScale = dt / FRAME_REF_MS;
 
     // input
     let dx = 0;
@@ -113,9 +163,20 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
       return;
     }
     elapsed += dt;
+
+    // Pace ramps up with elapsed time, capped at CONFIG.maxSpeedMultiplier.
+    const elapsedSeconds = elapsed / 1000;
+    speedMultiplier = Math.min(
+      CONFIG.maxSpeedMultiplier,
+      baseSpeedMultiplier + elapsedSeconds * speedRampPerSecond,
+    );
+
     player.moving = dx !== 0;
     if (dx) player.facing = dx;
-    player.x += dx * CONFIG.playerSpeed;
+    // Time-scaled (dtScale) so real-world traversal speed stays correct
+    // regardless of actual frame rate — see FRAME_REF_MS note up top.
+    const previousPlayerX = player.x;
+    player.x += dx * CONFIG.playerSpeed * speedMultiplier * dtScale;
     if (player.x < 0) player.x = 0;
     if (player.x > levelLength) player.x = levelLength;
 
@@ -124,22 +185,28 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
       player.vy = CONFIG.jump;
       player.onGround = false;
     }
-    player.vy += CONFIG.gravity;
-    player.y += player.vy;
+    player.vy += CONFIG.gravity * dtScale;
+    player.y += player.vy * dtScale;
     if (player.y >= CONFIG.groundY - player.h) {
       player.y = CONFIG.groundY - player.h;
       player.vy = 0;
       player.onGround = true;
     }
 
-    // cat AI: always chases toward player at increasing speed
-    catSpeed += CONFIG.catGain * dt;
+    // cat AI: always chases toward player. Speed combines the cat's own
+    // growth term (capped at catGainCap, see note above) with the same
+    // global pace multiplier everything else uses — keeps her visible
+    // right at the edge of the screen as the pace increases, without ever
+    // letting her permanently out-pace the player.
+    const catGrowth = Math.min(catGainRate * elapsed, catGainCap);
+    catSpeed = (CONFIG.catBaseSpeed + catGrowth) * speedMultiplier;
     const dir = player.x - cat.x;
-    cat.x += Math.sign(dir) * Math.min(catSpeed, Math.abs(dir));
+    const catStep = Math.min(catSpeed * dtScale, Math.abs(dir));
+    cat.x += Math.sign(dir) * catStep;
 
-    // enemies bounce
+    // enemies bounce — faster bounce cycle as the pace ramps up
     enemies.forEach((e) => {
-      e.phase += 0.03;
+      e.phase += 0.03 * speedMultiplier * dtScale;
       e.y = e.baseY - Math.abs(Math.sin(e.phase)) * e.amp;
     });
 
@@ -162,17 +229,22 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
     // left edge up with screen x = 0), ease her forward toward that edge
     // instead of snapping her there instantly. This is purely a visual
     // floor — it only ever pulls her forward when she's lagging behind the
-    // camera, it never overrides catSpeed/catGain or moves her closer to
-    // the player than the real chase AI already has her, so difficulty and
+    // camera, it never overrides catSpeed or moves her closer to the
+    // player than the real chase AI already has her, so difficulty and
     // the win condition are untouched.
     if (camera > 0 && cat.x < camera + 10) {
       cat.x += (camera + 10 - cat.x) * 0.08;
     }
 
-    // animation frames
+    // Animation gets a gentler cap than movement so the run cycle stays readable.
+    const animationSpeedMultiplier = Math.min(
+      speedMultiplier,
+      CONFIG.maxAnimationSpeedMultiplier,
+    );
+    const dynamicFrameMs = CONFIG.frameMs / animationSpeedMultiplier;
     animT += dt;
-    if (animT >= CONFIG.frameMs) {
-      animT -= CONFIG.frameMs;
+    if (animT >= dynamicFrameMs) {
+      animT -= dynamicFrameMs;
       boyFrame = (boyFrame + 1) % boyRunFrames;
       catFrame = (catFrame + 1) % catRunFrames;
     }
@@ -181,10 +253,9 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
     if (!done) {
       // cat catch
       if (rectHit(player, cat)) return finish(false);
-      // enemies TEMPORARILY DISABLED
-      //for (const e of enemies) {
-        //if (rectHit(player, e)) return finish(false);
-      //}
+      for (const e of enemies) {
+        if (sweptRectHit(player, e, previousPlayerX)) return finish(false);
+      }
       // target (cake, envelope, chess piece, or cd)
       if (player.x + player.w > targetX) return finish(true);
     }
@@ -268,6 +339,15 @@ function rectHit(a, b) {
   return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
 }
 
+function sweptRectHit(player, obstacle, previousX) {
+  const sweptPlayer = {
+    ...player,
+    x: Math.min(previousX, player.x),
+    w: player.w + Math.abs(player.x - previousX),
+  };
+  return rectHit(sweptPlayer, obstacle);
+}
+
 function drawSprite(ctx, img, frame, frames, x, y, fw, fh, facing) {
   const sw = img.width / frames;
   if (facing < 0) {
@@ -320,6 +400,3 @@ export function drawEnvelope(ctx, x, y) {
   ctx.fillStyle = "#7a3f8a";
   ctx.fillRect(x + w / 2 - 3, y + h / 2 + 2, 6, 6);
 }
-
-// Pixel-drawn black chess piece (pawn silhouette), used as the level-2 win
-// target. x/y is roughly the top-left of a 22x34 box.
