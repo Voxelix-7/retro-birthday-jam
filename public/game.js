@@ -70,6 +70,9 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
 
   const levelLength = level?.length ?? CONFIG.levelLength;
   const winType = level?.winType ?? "cake";
+  const warningText = level?.warningText;
+  const warningDistance = level?.warningDistance ?? 0;
+  const enemyJumpHeight = level?.enemyJumpHeight ?? 0;
 
   // Per-level pace tuning, with sane fallbacks so a level missing these
   // fields still runs at the old default feel.
@@ -204,10 +207,11 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
     const catStep = Math.min(catSpeed * dtScale, Math.abs(dir));
     cat.x += Math.sign(dir) * catStep;
 
-    // enemies bounce — faster bounce cycle as the pace ramps up
+    // Level 4 cubes use a taller jump arc; other levels retain their small bob.
     enemies.forEach((e) => {
       e.phase += 0.03 * speedMultiplier * dtScale;
-      e.y = e.baseY - Math.abs(Math.sin(e.phase)) * e.amp;
+      const jumpHeight = enemyJumpHeight || e.amp;
+      e.y = e.baseY - Math.abs(Math.sin(e.phase)) * jumpHeight;
     });
 
     // envelope gently floats/bobs in place
@@ -299,6 +303,20 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
         const cakeSize = 44;
         ctx.drawImage(cake, targetScreenX - cakeSize / 2, envelope.y - cakeSize / 2, cakeSize, cakeSize);
       }
+    }
+
+    if (warningText && targetX - player.x <= warningDistance) {
+      ctx.save();
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = "12px 'Press Start 2P', monospace";
+      ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+      ctx.fillText("The cake is close.", CONFIG.width / 2 + 1, 70 + 1);
+      ctx.fillText("Don’t embarrass yourself", CONFIG.width / 2 + 1, 88 + 1);
+      ctx.fillStyle = "#f0e6f0";
+      ctx.fillText("The cake is close.", CONFIG.width / 2, 70);
+      ctx.fillText("Don’t embarrass yourself", CONFIG.width / 2, 88);
+      ctx.restore();
     }
 
     // enemies
