@@ -64,7 +64,7 @@ document.addEventListener("fullscreenchange", () => {
   }
 });
 
-const PASSWORD = "wanwan";
+const PASSWORD = "jan30*026";
 const PROGRESS_KEY = "wanwan-progress";
 
 const screens = Array.from(document.querySelectorAll(".screen"));
@@ -134,7 +134,7 @@ const batText = document.getElementById("bat-text");
 const getStarted = document.getElementById("get-started");
 
 const BAT_TEXT =
-  "Hello, this website was designed by me, the honored one, for Mr Batman of Helwan or so called _by me_, WanWan. If you're reading this then congrats you've accessed the top secret territory (enemy's territory). Should we get started?";
+  "Hello, this game was designed by me, the honored one, for Mr Batman of Helwan or so called _by me_, WanWan. If you're reading this then congrats you've accessed the top secret territory (enemy's territory). Should we get started?";
 
 let batIntroDone = false;
 function playBatIntro() {
@@ -606,7 +606,7 @@ function initFinale() {
 // separate from level 1's own ending.text (used for the normal, first-time
 // win) since the finale shouldn't repeat that exact message.
 const FINALE_ENVELOPE_TEXT =
-  "PLACEHOLDER — swap in the real finale envelope message whenever you're ready.";
+    "Hey Marwan, hope you enjoyed my silly game. This game will be considered special to me for a few years because it's the first game I ever work on. Almost everything was designed manually and is meant for you to notice so please appreciate the small details. And finally I hope you win in life, wether I'm around or not. Happy 18th birthday Marwan :)";
 
 function replayEnding(levelId) {
   const level = LEVELS.find((l) => l.id === levelId);
