@@ -117,8 +117,8 @@ export const LEVELS = [
     catGain: 0.00007,
     catGainCap: 0.55,
     warningText: "The cake is close. Don’t embarrass yourself",
-    warningDistance: 300,
-    enemyJumpHeight: 52,
+    warningDistance: 3500,
+    enemyJumpHeight: 50,
     // No `confirm` — winning goes straight to the fade-to-black + finale.
     ending: { type: "finale" },
   },
