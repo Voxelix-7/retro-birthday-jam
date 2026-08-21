@@ -86,7 +86,7 @@ function spawnConfettiParticle(canvas) {
     y: -20 - Math.random() * canvas.height,
     s: 4 + Math.random() * 4,
     vx: -0.3 + Math.random() * 0.6,
-    vy: 0.9 + Math.random() * 0.5, // slow, gentle fall
+    vy: 0.6 + Math.random() * 0.5, // slow, gentle fall
     col: CONFETTI_COLORS[(Math.random() * CONFETTI_COLORS.length) | 0],
     r: Math.random() * Math.PI,
     vr: -0.04 + Math.random() * 0.08,
