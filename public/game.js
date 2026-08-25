@@ -300,7 +300,7 @@ export async function startGame({ canvas, progressEl, onLose, onWin, startPaused
         ctx.drawImage(cd, targetScreenX - cdSize / 2, envelope.y - cdSize / 2, cdSize, cdSize);
       } else {
         // cake floats/bobs like the other targets
-        const cakeSize = 44;
+        const cakeSize = 64;
         ctx.drawImage(cake, targetScreenX - cakeSize / 2, envelope.y - cakeSize / 2, cakeSize, cakeSize);
       }
     }
