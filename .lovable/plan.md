@@ -1,20 +1,17 @@
-## Add separate side-view idle sprite for gameplay
+# Share the game with a public, installable link
 
-Currently `boy_idle.png` is used in two places:
-- Intro/instructions window (front-facing portrait) — via `public/app.css`
-- Gameplay when the boy stops moving — via `public/game.js`
+Yes — this works with no login and no permission prompts. The app is already a static PWA (`public/app.html`, manifest, service worker, icons), so publishing makes it open to anyone with the link.
 
-These need to be split into two sprites.
+## Steps
 
-### Changes
+1. Confirm publish visibility is set to **public** (anyone with the link, no workspace login).
+2. Run a quick security scan (required before publishing) and publish the project.
+3. Give you the live link plus the direct game URL (`/app.html`; `/` already redirects there).
+4. Verify on the live URL: page loads without any sign-in, manifest + icons resolve, service worker registers, and the game is installable ("Add to Home Screen" on iOS Safari, "Install app" on Android Chrome).
 
-1. **Save new side-view idle** as `public/sprites/boy_stand.png` ← `user-uploads://pixil-frame-0_15.png` (side-view, single frame).
-2. **Leave `public/sprites/boy_idle.png` untouched** — it stays the front-facing portrait for the instructions window (CSS references unchanged).
-3. **`public/game.js`** — Change the third preload from `boy_idle.png` to `boy_stand.png` (rename the variable to `boyStand`) and use it in the "not moving, on ground" branch of the draw call. No other logic changes.
+## Notes
 
-### Also (from previous message, still pending)
-
-4. `public/sprites/boy_run.png` ← `user-uploads://pixil-frame-0_11-2.png` (3-frame male run)
-5. `public/sprites/cat_run.png` ← `user-uploads://female_run_Spritesheet-2.png` (3-frame female run)
-
-Frame counts derive from image width automatically, so no code change needed for #4 and #5.
+- Only the password gate (`Jan30*026`) stands between your friend and the game — that's your own screen, not an account login.
+- Install prompt: Android/Chrome shows an install banner or menu item; iOS requires Share > Add to Home Screen (no way to force a prompt there).
+- The service worker caches the game for offline play after the first load.
+- Optional slug rename (e.g. `wanwan-birthday`) if you want a nicer link — tell me the wording you'd like.
