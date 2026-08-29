@@ -1052,12 +1052,12 @@ html, body {
   .player-panel {
     position: fixed;
     left: 50%;
-    top: 35%;
+    top: 42%;
     right: auto;
     transform: translate(-50%, -50%);
-    width: min(78vw, 300px);
+    width: min(78vw, 72vh, 300px);
     min-width: 0;
-    max-height: min(58vh, 360px);
+    max-height: 92vh;
     padding: clamp(8px, 2vh, 12px) clamp(8px, 2.2vw, 10px);
     gap: clamp(5px, 1.4vh, 8px);
   }
