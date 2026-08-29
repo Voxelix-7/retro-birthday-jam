@@ -1,8 +1,4 @@
 // Track data for the "Who Really Cares" music player shown after level 3.
-//
-// Audio files aren't included yet — drop the actual mp3s into public/audio/
-// using the exact filenames below, and playback will just work. Until then,
-// the player UI still works fine; a missing file just fails to play silently.
 
 export const ALBUM = {
   artist: "TV Girl",
