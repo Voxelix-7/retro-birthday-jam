@@ -1031,19 +1031,52 @@ html, body {
   .player-panel {
     position: fixed;
     left: 50%;
-    top: 42%;
+    top: 35%;
     right: auto;
     transform: translate(-50%, -50%);
-    width: min(84vw, 300px);
-    max-height: min(64vh, 420px);
-    padding: clamp(8px, 2.2vh, 14px) clamp(8px, 2.5vw, 12px);
-    gap: clamp(6px, 1.6vh, 10px);
+    width: min(75vw, 260px);
+    max-height: min(55vh, 340px);
+    padding: clamp(8px, 2vh, 12px) clamp(8px, 2.2vw, 10px);
+    gap: clamp(5px, 1.4vh, 8px);
+  }
+  .player-art {
+    border-radius: 6px;
+    border: 2px solid var(--text);
+  }
+  .player-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 11px;
+  }
+  .player-btn--big {
+    width: 42px;
+    height: 42px;
+    font-size: 13px;
+  }
+  .player-time {
+    padding: 6px 8px;
+    gap: 6px;
+  }
+  .player-time-label {
+    font-size: 7px;
+  }
+  .player-tracktitle {
+    font-size: 9px;
+  }
+  .player-track-title {
+    font-size: 7px;
+  }
+  .player-track-duration {
+    font-size: 7px;
   }
   .musicplayer-ok-wrap {
     position: fixed;
     left: 50%;
-    bottom: clamp(8px, 3vh, 18px);
+    bottom: clamp(6px, 2.5vh, 16px);
     transform: translateX(-50%);
+  }
+  .aya-sprite {
+    width: clamp(32px, 7vh, 48px);
   }
 }
 
