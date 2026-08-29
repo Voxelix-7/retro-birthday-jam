@@ -874,9 +874,9 @@ html, body {
   right: 4%;
   top: 50%;
   transform: translateY(-50%);
-  width: 27%;
+  width: 32%;
   min-width: 200px;
-  max-width: 320px;
+  max-width: 420px;
   max-height: 88%;
   overflow-y: auto;
   background: #1a0d1c;
@@ -889,6 +889,27 @@ html, body {
   align-items: center;
   gap: clamp(8px, 2.2vh, 14px);
   animation: pop 400ms ease;
+  scrollbar-color: #ff0088 #14080e;
+  scrollbar-width: thin;
+}
+
+.player-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.player-panel::-webkit-scrollbar-track {
+  background: #14080e;
+  border-radius: 999px;
+}
+
+.player-panel::-webkit-scrollbar-thumb {
+  background: #ff0088;
+  border-radius: 999px;
+  border: 2px solid #14080e;
+}
+
+.player-panel::-webkit-scrollbar-thumb:hover {
+  background: #ff2c99;
 }
 
 .player-art {
