@@ -874,7 +874,7 @@ html, body {
   right: 4%;
   top: 50%;
   transform: translateY(-50%);
-  width: 32%;
+  width: min(32vw, 420px);
   min-width: 200px;
   max-width: 420px;
   max-height: 88%;
@@ -1048,15 +1048,16 @@ html, body {
    the player look oversized. max-height catches that case; max-width is
    kept as a fallback for a genuinely narrow window (e.g. resized desktop
    browser). */
-@media (max-width: 640px), (max-height: 480px) {
+@media (max-width: 760px), (max-height: 520px) {
   .player-panel {
     position: fixed;
     left: 50%;
     top: 35%;
     right: auto;
     transform: translate(-50%, -50%);
-    width: min(75vw, 260px);
-    max-height: min(55vh, 340px);
+    width: min(78vw, 300px);
+    min-width: 0;
+    max-height: min(58vh, 360px);
     padding: clamp(8px, 2vh, 12px) clamp(8px, 2.2vw, 10px);
     gap: clamp(5px, 1.4vh, 8px);
   }
