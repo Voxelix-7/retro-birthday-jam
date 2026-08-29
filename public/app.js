@@ -606,7 +606,7 @@ function initFinale() {
 // separate from level 1's own ending.text (used for the normal, first-time
 // win) since the finale shouldn't repeat that exact message.
 const FINALE_ENVELOPE_TEXT =
-    "Hey Marwan, hope you enjoyed my silly game. This game will be considered special to me for a few years because it's the first game I ever work on. Almost everything was designed manually and is meant for you to notice so please appreciate the small details. And finally I hope you win in life, wether I'm around or not. Happy 18th birthday Marwan :)";
+    "Hey Marwan, hope you enjoyed my silly game as much as I did building it. It's not perfect but it will be considered special to me for a while because it's the first game I ever work on. Almost everything was designed manually and is meant for you to notice, that's what makes it special. And finally, I hope you win in life, whether I'm around or not. Happy 18th birthday ya Marwan :)";
 
 function replayEnding(levelId) {
   const level = LEVELS.find((l) => l.id === levelId);
