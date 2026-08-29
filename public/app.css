@@ -1048,60 +1048,62 @@ html, body {
    the player look oversized. max-height catches that case; max-width is
    kept as a fallback for a genuinely narrow window (e.g. resized desktop
    browser). */
-@media (max-width: 760px), (max-height: 520px) {
+@media (max-width: 768px), (max-height: 500px) {
   .player-panel {
     position: fixed;
     left: 50%;
-    top: 42%;
+    top: 36%;
     right: auto;
     transform: translate(-50%, -50%);
-    width: min(84vw, 300px);
-    max-height: min(64vh, 420px);
-    padding: clamp(8px, 2.2vh, 14px) clamp(8px, 2.5vw, 12px);
-    gap: clamp(6px, 1.6vh, 10px);
+    width: min(70vw, 270px);
+    min-width: 160px;
+    max-height: min(62vh, 390px);
+    padding: clamp(10px, 2.2vh, 14px) clamp(9px, 2.3vw, 12px);
+    gap: clamp(7px, 1.5vh, 10px);
   }
- .player-art {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 2px solid var(--text);
-  image-rendering: pixelated;
-}
+  .player-art {
+    border-radius: 6px;
+    border: 2px solid var(--text);
+  }
   .player-btn {
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     font-size: 11px;
   }
   .player-btn--big {
-    width: 42px;
-    height: 42px;
-    font-size: 13px;
+    width: 44px;
+    height: 44px;
+    font-size: 14px;
   }
   .player-time {
-    padding: 6px 8px;
-    gap: 6px;
+    padding: 7px 9px;
+    gap: 7px;
   }
   .player-time-label {
-    font-size: 7px;
+    font-size: 8px;
   }
   .player-tracktitle {
     font-size: 9px;
+    line-height: 1.4;
   }
   .player-track-title {
-    font-size: 7px;
+    font-size: 8px;
   }
   .player-track-duration {
-    font-size: 7px;
+    font-size: 8px;
+  }
+  .player-track {
+    padding: 6px 5px;
+    gap: 8px;
   }
   .musicplayer-ok-wrap {
     position: fixed;
     left: 50%;
-    bottom: clamp(6px, 2.5vh, 16px);
+    bottom: clamp(8px, 3vh, 18px);
     transform: translateX(-50%);
   }
   .aya-sprite {
-    width: clamp(32px, 7vh, 48px);
+    width: clamp(36px, 8vh, 56px);
   }
 }
 
